@@ -28,7 +28,7 @@ USERAGENTS = os.path.join(PARENT_DIRECTORY, 'resources/misc/useragents.txt')
 STOPWORDS_DIR = os.path.join(PARENT_DIRECTORY, 'resources/text')
 
 # NLP stopwords are != regular stopwords for now...
-NLP_STOPWORDS_EN = os.path.join(
+NLP_STOPWORDS_SV = os.path.join(
     PARENT_DIRECTORY, 'resources/misc/stopwords-nlp-sv.txt')
 
 DATA_DIRECTORY = '.newspaper_scraper'
