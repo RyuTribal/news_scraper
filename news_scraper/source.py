@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 class Category(object):
     def __init__(self, url):
         self.url = url
-        self.htlm = None
+        self.html = None
         self.doc = None
 
 
@@ -34,27 +34,28 @@ class Feed(object):
     def __init__(self, url):
         self.url = url
         self.rss = None
+        # TODO self.dom = None, speed up Feedparser
 
 
 NUM_THREADS_PER_SOURCE_WARN_LIMIT = 5
 
 
 class Source(object):
-    """Sources are abstractions of online news vendors like aftonbladet or dn.
-    domain     =  'www.dn.se'
+    """Sources are abstractions of online news vendors like huffpost or cnn.
+    domain     =  'www.cnn.com'
     scheme     =  'http'
-    categories =  ['http://dn.com/world', 'http://money.dn.com']
-    feeds      =  ['http://dn.com/rss.atom', ..]
+    categories =  ['http://cnn.com/world', 'http://money.cnn.com']
+    feeds      =  ['http://cnn.com/rss.atom', ..]
     articles   =  [<article obj>, <article obj>, ..]
-    brand      =  'dn'
+    brand      =  'cnn'
     """
 
     def __init__(self, url, config=None, **kwargs):
         """The config object for this source will be passed into all of this
         source's children articles unless specified otherwise or re-set.
         """
-        if(url is None) or ('://' not in url) or (url[:4] != 'http'):
-            raise Exception('Input url is haram')
+        if (url is None) or ('://' not in url) or (url[:4] != 'http'):
+            raise Exception('Input url is bad!')
 
         self.config = config or Configuration()
         self.config = utils.extend_config(self.config, kwargs)
@@ -83,16 +84,19 @@ class Source(object):
         self.is_downloaded = False
 
     def build(self):
-        """Encapsulates download and basic parsing with lxml."""
+        """Encapsulates download and basic parsing with lxml. May be a
+        good idea to split this into download() and parse() methods.
+        """
         self.download()
         self.parse()
 
         self.set_categories()
-        self.download_categories()
+        self.download_categories()  # mthread
         self.parse_categories()
 
         self.set_feeds()
-        self.download_feeds()
+        self.download_feeds()  # mthread
+        # self.parse_feeds()
 
         self.generate_articles()
 
@@ -105,7 +109,6 @@ class Source(object):
         http://stackoverflow.com/questions/1207406/remove-items-from-a-
         list-while-iterating-in-python
         """
-
         if reason == 'url':
             articles[:] = [a for a in articles if a.is_valid_url()]
         elif reason == 'body':
@@ -135,27 +138,32 @@ class Source(object):
         if split.netloc in ('medium.com', 'www.medium.com'):
             # should handle URL to user or user's post
             if split.path.startswith('/@'):
-                new_path = '/feed' + split.path.split('/')[1]
+                new_path = '/feed/' + split.path.split('/')[1]
                 new_parts = split.scheme, split.netloc, new_path, '', ''
                 common_feed_urls.append(urlunsplit(new_parts))
 
-        common_feed_urls_as_categories = [
-            Category(url=url) for url in common_feed_urls]
+        common_feed_urls_as_categories = [Category(url=url) for url in common_feed_urls]
 
         category_urls = [c.url for c in common_feed_urls_as_categories]
         requests = network.multithread_request(category_urls, self.config)
 
-        for index, _ in enumerate[common_feed_urls_as_categories]:
+        for index, _ in enumerate(common_feed_urls_as_categories):
             response = requests[index].resp
             if response and response.ok:
                 common_feed_urls_as_categories[index].html = network.get_html(
                     response.url, response=response)
+
+        common_feed_urls_as_categories = [c for c in common_feed_urls_as_categories if c.html]
+
+        for _ in common_feed_urls_as_categories:
+            doc = self.config.get_parser().fromstring(_.html)
+            _.doc = doc
+
         common_feed_urls_as_categories = [c for c in common_feed_urls_as_categories if
                                           c.doc is not None]
 
         categories_and_common_feed_urls = self.categories + common_feed_urls_as_categories
-        urls = self.extractor.get_feed_urls(
-            self.url, categories_and_common_feed_urls)
+        urls = self.extractor.get_feed_urls(self.url, categories_and_common_feed_urls)
         self.feeds = [Feed(url=url) for url in urls]
 
     def set_description(self):
@@ -184,7 +192,7 @@ class Source(object):
             else:
                 log.warning(('Deleting category %s from source %s due to '
                              'download error') %
-                            (self.categories[index].url, self.url))
+                             (self.categories[index].url, self.url))
         self.categories = [c for c in self.categories if c.html]
 
     def download_feeds(self):
@@ -201,7 +209,7 @@ class Source(object):
             else:
                 log.warning(('Deleting feed %s from source %s due to '
                              'download error') %
-                            (self.categories[index].url, self.url))
+                             (self.categories[index].url, self.url))
         self.feeds = [f for f in self.feeds if f.rss]
 
     def parse(self):
@@ -233,8 +241,7 @@ class Source(object):
             return None
 
         elements = self.config.get_parser().getElementsByTag(doc, tag='title')
-        feed.title = next(
-            (element.text for element in elements if element.text), self.brand)
+        feed.title = next((element.text for element in elements if element.text), self.brand)
         return feed
 
     def parse_feeds(self):

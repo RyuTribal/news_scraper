@@ -14,7 +14,6 @@ __copyright__ = "Copyright 2022, EIOP"
 
 
 import copy
-from datetime import datetime
 import logging
 import re
 import re
@@ -65,7 +64,7 @@ class ContentExtractor(object):
     def update_language(self, meta_lang):
         """Required to be called before the extraction process in some
         cases because the stopwords_class has to set incase the lang
-        is not latin based 
+        is not latin based
         """
         if meta_lang:
             self.language = meta_lang
@@ -76,8 +75,6 @@ class ContentExtractor(object):
         """Fetch the authors of the article, return as a list
         Only works for english articles
         """
-        # TODO make it work for swedish articles
-
         _digits = re.compile('\d')
 
         def contains_digits(d):
@@ -100,22 +97,20 @@ class ContentExtractor(object):
             """
             Takes a candidate line of html or text and
             extracts out the name(s) in list form:
-            >>> parse_byline('<div>By: <strong>Mohammed Shakir</strong>,<strong>Alex Smith</strong></div>')
-            ['Mohammed Shakir', 'Alex Smith']
+            >>> parse_byline('<div>By: <strong>Lucas Ou-Yang</strong>,<strong>Alex Smith</strong></div>')
+            ['Lucas Ou-Yang', 'Alex Smith']
             """
-
             # Remove HTML boilerplate
             search_str = re.sub('<[^<]+?>', '', search_str)
 
             # Remove original By statement
-            #TODO do it for swedish articles
             search_str = re.sub('[bB][yY][\:\s]|[fF]rom[\:\s]', '', search_str)
 
             search_str = search_str.strip()
 
             # Chunk the line by non alphanumeric tokens (few name exceptions)
-            # >>> re.split("[^\w\'\-\.]", "Tyler G. Jones, Mohammed Shakir, Dean O'Brian and Ronald")
-            # ['Tyler', 'G.', 'Jones', '', 'Mohammed', 'Shakir', '', 'Dean', "O'Brian", 'and', 'Ronald']
+            # >>> re.split("[^\w\'\-\.]", "Tyler G. Jones, Lucas Ou, Dean O'Brian and Ronald")
+            # ['Tyler', 'G.', 'Jones', '', 'Lucas', 'Ou', '', 'Dean', "O'Brian", 'and', 'Ronald']
             name_tokens = re.split("[^\w\'\-\.]", search_str)
             name_tokens = [s.strip() for s in name_tokens]
 
@@ -141,7 +136,7 @@ class ContentExtractor(object):
             return _authors
 
         # Try 1: Search popular author tags for authors
-        # TODO verify with swedish sites
+
         ATTRS = ['name', 'rel', 'itemprop', 'class', 'id']
         VALS = ['author', 'byline', 'dc.creator', 'byl']
         matches = []
@@ -191,7 +186,7 @@ class ContentExtractor(object):
                 try:
                     return date_parser(date_str)
                 except (ValueError, OverflowError, AttributeError, TypeError):
-                    # nearly all parse failures are due to URL dates without a day
+                    # near all parse failures are due to URL dates without a day
                     # specifier, e.g. /2014/04/
                     return None
 
@@ -201,31 +196,36 @@ class ContentExtractor(object):
             datetime_obj = parse_date_str(date_str)
             if datetime_obj:
                 return datetime_obj
-        PUBLISH_DATE_TAGS = [{'attribute': 'property', 'value': 'rnews:datePublished',
-                              'content': 'content'},
-                             {'attribute': 'property', 'value': 'article:published_time',
-                              'content': 'content'},
-                             {'attribute': 'name', 'value': 'OriginalPublicationDate',
-                              'content': 'content'},
-                             {'attribute': 'itemprop', 'value': 'datePublished',
-                              'content': 'datetime'},
-                             {'attribute': 'property', 'value': 'og:published_time',
-                              'content': 'content'},
-                             {'attribute': 'name', 'value': 'article_date_original',
-                              'content': 'content'},
-                             {'attribute': 'name', 'value': 'publication_date',
-                              'content': 'content'},
-                             {'attribute': 'name', 'value': 'sailthru.date',
-                              'content': 'content'},
-                             {'attribute': 'name', 'value': 'PublishDate',
-                              'content': 'content'},
-                             {'attribute': 'pubdate', 'value': 'pubdate',
-                              'content': 'datetime'},
-                             {'attribute': 'name', 'value': 'publish_date',
-                              'content': 'content'}, ]
+
+        PUBLISH_DATE_TAGS = [
+            {'attribute': 'property', 'value': 'rnews:datePublished',
+             'content': 'content'},
+            {'attribute': 'property', 'value': 'article:published_time',
+             'content': 'content'},
+            {'attribute': 'name', 'value': 'OriginalPublicationDate',
+             'content': 'content'},
+            {'attribute': 'itemprop', 'value': 'datePublished',
+             'content': 'datetime'},
+            {'attribute': 'property', 'value': 'og:published_time',
+             'content': 'content'},
+            {'attribute': 'name', 'value': 'article_date_original',
+             'content': 'content'},
+            {'attribute': 'name', 'value': 'publication_date',
+             'content': 'content'},
+            {'attribute': 'name', 'value': 'sailthru.date',
+             'content': 'content'},
+            {'attribute': 'name', 'value': 'PublishDate',
+             'content': 'content'},
+            {'attribute': 'pubdate', 'value': 'pubdate',
+             'content': 'datetime'},
+            {'attribute': 'name', 'value': 'publish_date',
+             'content': 'content'},
+        ]
         for known_meta_tag in PUBLISH_DATE_TAGS:
             meta_tags = self.parser.getElementsByTag(
-                doc, attr=known_meta_tag['attribute'], value=known_meta_tag['value'])
+                doc,
+                attr=known_meta_tag['attribute'],
+                value=known_meta_tag['value'])
             if meta_tags:
                 date_str = self.parser.getAttribute(
                     meta_tags[0],
@@ -233,6 +233,7 @@ class ContentExtractor(object):
                 datetime_obj = parse_date_str(date_str)
                 if datetime_obj:
                     return datetime_obj
+
         return None
 
     def get_title(self, doc):
@@ -252,7 +253,6 @@ class ContentExtractor(object):
         4. title starts with og:title, use og:title
         5. use title, after splitting
         """
-
         title = ''
         title_element = self.parser.getElementsByTag(doc, tag='title')
         # no title found
@@ -284,8 +284,8 @@ class ContentExtractor(object):
 
         # title from og:title
         title_text_fb = (
-            self.get_meta_content(doc, 'meta[property="og:title"]') or
-            self.get_meta_content(doc, 'meta[name="og:title"]') or '')
+        self.get_meta_content(doc, 'meta[property="og:title"]') or
+        self.get_meta_content(doc, 'meta[name="og:title"]') or '')
 
         # create filtered versions of title_text, title_text_h1, title_text_fb
         # for finer comparison
@@ -351,7 +351,7 @@ class ContentExtractor(object):
 
         return title
 
-    def spit_title(self, title, splitter, hint=None):
+    def split_title(self, title, splitter, hint=None):
         """Split the title to best part possible
         """
         large_text_length = 0
@@ -362,9 +362,8 @@ class ContentExtractor(object):
             filter_regex = re.compile(r'[^a-zA-Z0-9\ ]')
             hint = filter_regex.sub('', hint).lower()
 
-        # find the latest title piece
-
-        for i, title_piece in enumerate(title_piece):
+        # find the largest title piece
+        for i, title_piece in enumerate(title_pieces):
             current = title_piece.strip()
             if hint and hint in filter_regex.sub('', current).lower():
                 large_text_index = i
@@ -385,14 +384,13 @@ class ContentExtractor(object):
         for category in categories:
             kwargs = {'attr': 'type', 'value': 'application\/rss\+xml'}
             feed_elements = self.parser.getElementsByTag(
-                category.doc, **kwargs
-            )
+                category.doc, **kwargs)
             feed_urls = [e.get('href') for e in feed_elements if e.get('href')]
             total_feed_urls.extend(feed_urls)
 
         total_feed_urls = total_feed_urls[:50]
-        total_feed_urls = [urls.prepare_url(
-            f, source_url) for f in total_feed_urls]
+        total_feed_urls = [urls.prepare_url(f, source_url)
+                           for f in total_feed_urls]
         total_feed_urls = list(set(total_feed_urls))
         return total_feed_urls
 
@@ -448,21 +446,6 @@ class ContentExtractor(object):
             return content.strip()
         return ''
 
-    def get_meta_content(self, doc, metaname):
-        """Extract a given meta content form document.
-        Example metaNames:
-            "meta[name=description]"
-            "meta[name=keywords]"
-            "meta[property=og:type]"
-        """
-        meta = self.parser.css_select(doc, metaname)
-        content = None
-        if meta is not None and len(meta) > 0:
-            content = self.parser.getAttribute(meta[0], 'content')
-        if content:
-            return content.strip()
-        return ''
-
     def get_meta_img_url(self, article_url, doc):
         """Returns the 'top img' as specified by the website
         """
@@ -471,18 +454,15 @@ class ContentExtractor(object):
         if not try_one:
             link_img_src_kwargs = \
                 {'tag': 'link', 'attr': 'rel', 'value': 'img_src|image_src'}
-            elems = self.parser.getElementsByTag(
-                doc, use_regex=True, **link_img_src_kwargs)
+            elems = self.parser.getElementsByTag(doc, use_regex=True, **link_img_src_kwargs)
             try_two = elems[0].get('href') if elems else None
 
             if not try_two:
                 try_three = self.get_meta_content(doc, 'meta[name="og:image"]')
 
                 if not try_three:
-                    link_icon_kwargs = {'tag': 'link',
-                                        'attr': 'rel', 'value': 'icon'}
-                    elems = self.parser.getElementsByTag(
-                        doc, **link_icon_kwargs)
+                    link_icon_kwargs = {'tag': 'link', 'attr': 'rel', 'value': 'icon'}
+                    elems = self.parser.getElementsByTag(doc, **link_icon_kwargs)
                     try_four = elems[0].get('href') if elems else None
 
         top_meta_image = try_one or try_two or try_three or try_four
@@ -558,7 +538,6 @@ class ContentExtractor(object):
         1. The rel=canonical tag
         2. The og:url tag
         """
-
         links = self.parser.getElementsByTag(doc, tag='link', attr='rel',
                                              value='canonical')
 
@@ -910,7 +889,7 @@ class ContentExtractor(object):
         """Adds any siblings that may have a decent score to this node
         """
         if current_sibling.tag == 'p' and \
-                len(self.parser.getText(current_sibling)) > 0:
+                        len(self.parser.getText(current_sibling)) > 0:
             e0 = current_sibling
             if e0.tail:
                 e0 = copy.deepcopy(e0)

@@ -46,7 +46,7 @@ class OutputFormatter(object):
         self.top_node = top_node
         html, text = '', ''
 
-        self.remove_negativescores_node()
+        self.remove_negativescores_nodes()
 
         if self.config.keep_article_html:
             html = self.convert_to_html()
