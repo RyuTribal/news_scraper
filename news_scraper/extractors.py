@@ -65,7 +65,7 @@ class ContentExtractor(object):
     def update_language(self, meta_lang):
         """Required to be called before the extraction process in some
         cases because the stopwords_class has to set incase the lang
-        is not latin based
+        is not latin based 
         """
         if meta_lang:
             self.language = meta_lang
@@ -80,7 +80,7 @@ class ContentExtractor(object):
 
         _digits = re.compile('\d')
 
-        def contain_digits(d):
+        def contains_digits(d):
             return bool(_digits.search(d))
 
         def uniqify_list(lst):
@@ -100,21 +100,22 @@ class ContentExtractor(object):
             """
             Takes a candidate line of html or text and
             extracts out the name(s) in list form:
-            >>> parse_byline('<div>By: <strong>Lucas Ou-Yang</strong>,<strong>Alex Smith</strong></div>')
-            ['Lucas Ou-Yang', 'Alex Smith']
+            >>> parse_byline('<div>By: <strong>Mohammed Shakir</strong>,<strong>Alex Smith</strong></div>')
+            ['Mohammed Shakir', 'Alex Smith']
             """
 
             # Remove HTML boilerplate
             search_str = re.sub('<[^<]+?>', '', search_str)
 
             # Remove original By statement
+            #TODO do it for swedish articles
             search_str = re.sub('[bB][yY][\:\s]|[fF]rom[\:\s]', '', search_str)
 
             search_str = search_str.strip()
 
             # Chunk the line by non alphanumeric tokens (few name exceptions)
-            # >>> re.split("[^\w\'\-\.]", "Tyler G. Jones, Lucas Ou, Dean O'Brian and Ronald")
-            # ['Tyler', 'G.', 'Jones', '', 'Lucas', 'Ou', '', 'Dean', "O'Brian", 'and', 'Ronald']
+            # >>> re.split("[^\w\'\-\.]", "Tyler G. Jones, Mohammed Shakir, Dean O'Brian and Ronald")
+            # ['Tyler', 'G.', 'Jones', '', 'Mohammed', 'Shakir', '', 'Dean', "O'Brian", 'and', 'Ronald']
             name_tokens = re.split("[^\w\'\-\.]", search_str)
             name_tokens = [s.strip() for s in name_tokens]
 
@@ -140,7 +141,7 @@ class ContentExtractor(object):
             return _authors
 
         # Try 1: Search popular author tags for authors
-
+        # TODO verify with swedish sites
         ATTRS = ['name', 'rel', 'itemprop', 'class', 'id']
         VALS = ['author', 'byline', 'dc.creator', 'byl']
         matches = []
@@ -200,7 +201,6 @@ class ContentExtractor(object):
             datetime_obj = parse_date_str(date_str)
             if datetime_obj:
                 return datetime_obj
-
         PUBLISH_DATE_TAGS = [{'attribute': 'property', 'value': 'rnews:datePublished',
                               'content': 'content'},
                              {'attribute': 'property', 'value': 'article:published_time',
