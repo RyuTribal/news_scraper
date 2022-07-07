@@ -3,6 +3,11 @@
 Holds the code for cleaning out unwanted tags from the lxml
 dom xpath.
 """
+
+__title__ = "news_scraper"
+__author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
+__copyright__ = "Copyright 2022, EIOP"
+
 import copy
 from .utils import ReplaceSequence
 
