@@ -51,106 +51,106 @@ class Article(object):
                 'Configuration object being passed incorrectly as title or '
                 'source_url! Please verify `Article`s __init__() fn.')
 
-    self.config = config or Configuration()
-    self.config = extend_config(self.config, kwargs)
+        self.config = config or Configuration()
+        self.config = extend_config(self.config, kwargs)
 
-    self.extractor = ContentExtractor(self.config)
+        self.extractor = ContentExtractor(self.config)
 
-    if source_url == '':
-            scheme = urls.get_scheme(url)
-            if scheme is None:
-                scheme = 'http'
-            source_url = scheme + '://' + urls.get_domain(url)
+        if source_url == '':
+                scheme = urls.get_scheme(url)
+                if scheme is None:
+                    scheme = 'http'
+                source_url = scheme + '://' + urls.get_domain(url)
 
-    if source_url is None or source_url == '':
-        raise ArticleException('input url bad format')
+        if source_url is None or source_url == '':
+            raise ArticleException('input url bad format')
 
-    # URL to the main page of the news source which owns this article
-    self.source_url = source_url
+        # URL to the main page of the news source which owns this article
+        self.source_url = source_url
 
-    self.url = urls.prepare_url(url, self.source_url)
+        self.url = urls.prepare_url(url, self.source_url)
 
-    self.title = title
+        self.title = title
 
-    # URL of the "best image" to represent this article
-    self.top_img = self.top_image = ''
+        # URL of the "best image" to represent this article
+        self.top_img = self.top_image = ''
 
-    # stores image provided by metadata
-    self.meta_img = ''
+        # stores image provided by metadata
+        self.meta_img = ''
 
-    # All image urls in this article
-    self.imgs = self.images = []
+        # All image urls in this article
+        self.imgs = self.images = []
 
-    # All videos in this article: youtube, vimeo, etc
-    self.movies = []
+        # All videos in this article: youtube, vimeo, etc
+        self.movies = []
 
-    # Body text from this article
-    self.text = ''
+        # Body text from this article
+        self.text = ''
 
-    # `keywords` are extracted via nlp() from the body text
-    self.keywords = []
+        # `keywords` are extracted via nlp() from the body text
+        self.keywords = []
 
-    # `meta_keywords` are extracted via parse() from <meta> tags
-    self.meta_keywords = []
+        # `meta_keywords` are extracted via parse() from <meta> tags
+        self.meta_keywords = []
 
-    # `tags` are also extracted via parse() from <meta> tags
-    self.tags = set()
+        # `tags` are also extracted via parse() from <meta> tags
+        self.tags = set()
 
-    # List of authors who have published the article, via parse()
-    self.authors = []
+        # List of authors who have published the article, via parse()
+        self.authors = []
 
-    self.publish_date = ''
+        self.publish_date = ''
 
-    # Summary generated from the article's body txt
-    self.summary = ''
+        # Summary generated from the article's body txt
+        self.summary = ''
 
-    # This article's unchanged and raw HTML
-    self.html = ''
+        # This article's unchanged and raw HTML
+        self.html = ''
 
-    # The HTML of this article's main node (most important part)
-    self.article_html = ''
+        # The HTML of this article's main node (most important part)
+        self.article_html = ''
 
-    # Keep state for downloads and parsing
-    self.is_parsed = False
-    self.download_state = ArticleDownloadState.NOT_STARTED
-    self.download_exception_msg = None
+        # Keep state for downloads and parsing
+        self.is_parsed = False
+        self.download_state = ArticleDownloadState.NOT_STARTED
+        self.download_exception_msg = None
 
-    # Meta description field in the HTML source
-    self.meta_description = ""
+        # Meta description field in the HTML source
+        self.meta_description = ""
 
-    # Meta language field in HTML source
-    self.meta_lang = ""
+        # Meta language field in HTML source
+        self.meta_lang = ""
 
-    # Meta favicon field in HTML source
-    self.meta_favicon = ""
+        # Meta favicon field in HTML source
+        self.meta_favicon = ""
 
-    # Meta site_name field in HTML source
-    self.meta_site_name = ""
+        # Meta site_name field in HTML source
+        self.meta_site_name = ""
 
-    # Meta tags contain a lot of structured data, e.g. OpenGraph
-    self.meta_data = {}
+        # Meta tags contain a lot of structured data, e.g. OpenGraph
+        self.meta_data = {}
 
-    # The canonical link of this article if found in the meta data
-    self.canonical_link = ""
+        # The canonical link of this article if found in the meta data
+        self.canonical_link = ""
 
-    # Holds the top element of the DOM that we determine is a candidate
-    # for the main body of the article
-    self.top_node = None
+        # Holds the top element of the DOM that we determine is a candidate
+        # for the main body of the article
+        self.top_node = None
 
-    # A deepcopied clone of the above object before heavy parsing
-    # operations, useful for users to query data in the
-    # "most important part of the page"
-    self.clean_top_node = None
+        # A deepcopied clone of the above object before heavy parsing
+        # operations, useful for users to query data in the
+        # "most important part of the page"
+        self.clean_top_node = None
 
-    # lxml DOM object generated from HTML
-    self.doc = None
+        # lxml DOM object generated from HTML
+        self.doc = None
 
-    # A deepcopied clone of the above object before undergoing heavy
-    # cleaning operations, serves as an API if users need to query the DOM
-    self.clean_doc = None
+        # A deepcopied clone of the above object before undergoing heavy
+        # cleaning operations, serves as an API if users need to query the DOM
+        self.clean_doc = None
 
-    # A property dict for users to store custom data.
-    self.additional_data = {}
+        # A property dict for users to store custom data.
+        self.additional_data = {}
 
     def build(self):
         """Build a lone article from a URL independent of the source (newspaper).
