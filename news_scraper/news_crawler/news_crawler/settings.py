@@ -11,7 +11,7 @@ BOT_NAME = 'news_crawler'
 
 SPIDER_MODULES = ['news_crawler.spiders']
 NEWSPIDER_MODULE = 'news_crawler.spiders'
-DEPTH_LIMIT = 5
+DEPTH_LIMIT = 0
 ITEM_PIPELINES = {
    'news_crawler.pipelines.NewsCrawlerPipeline': 100,
 }

@@ -20,14 +20,15 @@ class NewsCrawlerPipeline:
     def process_item(self, item, spider):
         url = ItemAdapter(item).get('url')
         article = Article(url)
-        article.download()
-        article.parse()
-        article_dict = {
-            "title": article.title,
-            "url": article.url,
-            "authors": article.authors
-        }
-        final_data = json.dumps(article_dict, indent=2, ensure_ascii=False) + "\n"
+        article.build()
+        article_dict = article.get_dict()
+        final_data = json.dumps(article_dict, indent=2, ensure_ascii=False, default=serialize_sets) + "\n"
         self.file.write(final_data)
 
         return item
+
+def serialize_sets(obj):
+    if isinstance(obj, set):
+        return list(obj)
+
+    return obj

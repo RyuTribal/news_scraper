@@ -565,3 +565,20 @@ class Article(object):
         """
         if not self.is_parsed:
             raise ArticleException('You must `parse()` an article first!')
+    
+    def get_dict(self):
+        return {
+            "title": self.title,
+            "top_img": self.top_img,
+            "images": self.imgs,
+            "movies" : self.movies,
+            "keywords": self.keywords,
+            "meta_keywords": self.meta_keywords,
+            "tags": self.tags,
+            "authors": self.authors,
+            "publish_date": self.publish_date,
+            "summary": self.summary,
+            "meta_data": self.meta_data,
+            "source_url": self.source_url,
+            "url" : self.url,
+        }
