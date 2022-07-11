@@ -4,7 +4,7 @@ from scrapy.http import FormRequest
 from news_scraper.urls import valid_url
 from ..items import NewsCrawlerItem
 
-class someSpider(CrawlSpider):
+class MenuSpider(CrawlSpider):
   name = 'Menuscraper'
   allowed_domains = ['www.allehanda.se', 'rss.aftonbladet.se']
   start_urls = ['https://www.allehanda.se/']
