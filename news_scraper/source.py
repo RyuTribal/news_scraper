@@ -131,6 +131,8 @@ class Source(object):
         """Don't need to cache getting feed urls, it's almost
         instant with xpath
         """
+
+        """ """
         common_feed_urls = ['/feed', '/feeds', '/rss']
         common_feed_urls = [urljoin(self.url, url) for url in common_feed_urls]
 
@@ -141,6 +143,7 @@ class Source(object):
                 new_path = '/feed/' + split.path.split('/')[1]
                 new_parts = split.scheme, split.netloc, new_path, '', ''
                 common_feed_urls.append(urlunsplit(new_parts))
+
 
         common_feed_urls_as_categories = [Category(url=url) for url in common_feed_urls]
 

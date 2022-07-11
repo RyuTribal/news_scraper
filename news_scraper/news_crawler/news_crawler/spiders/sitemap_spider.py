@@ -13,7 +13,7 @@ from ..items import NewsCrawlerItem
 
 class SitemapNewsSpider(SitemapSpider):
     name = 'sitemap_spider'
-    sitemap_urls = None
+    sitemap_urls =  None
 
     def __init__(self, url='', **kwargs):
         self.sitemap_urls = [url + '/robots.txt']
