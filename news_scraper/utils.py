@@ -3,10 +3,9 @@
 Holds misc. utility methods which prove to be
 useful throughout this library.
 """
-__title__ = 'newspaper'
-__author__ = 'Lucas Ou-Yang'
-__license__ = 'MIT'
-__copyright__ = 'Copyright 2014, Lucas Ou-Yang'
+__title__ = "news_scraper"
+__author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
+__copyright__ = "Copyright 2022, EIOP"
 
 import codecs
 import hashlib
