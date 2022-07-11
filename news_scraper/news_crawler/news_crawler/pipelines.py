@@ -25,7 +25,11 @@ class NewsCrawlerPipeline:
         article_dict = {
             "title": article.title,
             "url": article.url,
-            "authors": article.authors
+            "authors": article.authors,
+            "top_img": article.top_image,
+            "description": article.meta_description,
+            "meta_data": article.meta_data
+
         }
         final_data = json.dumps(article_dict, indent=2, ensure_ascii=False) + "\n"
         self.file.write(final_data)
