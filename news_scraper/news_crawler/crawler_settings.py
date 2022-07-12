@@ -9,11 +9,11 @@
 
 BOT_NAME = 'news_crawler'
 
-SPIDER_MODULES = ['news_crawler.spiders']
-NEWSPIDER_MODULE = 'news_crawler.spiders'
-DEPTH_LIMIT = 0
+SPIDER_MODULES = ['news_scraper.news_crawler.spiders']
+NEWSPIDER_MODULE = 'news_scraper.news_crawler.spiders'
+DEPTH_LIMIT = 4
 ITEM_PIPELINES = {
-   'news_crawler.pipelines.NewsCrawlerPipeline': 100,
+   'news_scraper.news_crawler.pipelines.NewsCrawlerPipeline': 100,
 }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent

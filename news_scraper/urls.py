@@ -16,6 +16,7 @@ import re
 from urllib.parse import parse_qs, urljoin, urlparse, urlsplit, urlunsplit
 
 from tldextract import tldextract
+import requests
 
 log = logging.getLogger(__name__)
 
@@ -38,6 +39,28 @@ BAD_CHUNKS = ['careers', 'contact', 'about', 'faq', 'terms', 'privacy',
               'account', 'subscribe', 'donate', 'shop', 'admin']
 
 BAD_DOMAINS = ['amazon', 'doubleclick', 'twitter']
+
+def get_sitemap(url):
+    """ 
+    Checks if the robot.txt. file has sitemaps
+    """
+    domain_url = get_domain(url) # www.aftonbladet.se
+    url_scheme = get_scheme(url) # http or https
+    robots_url = url_scheme + "://"+domain_url+"/robots.txt"
+    robots = requests.get(robots_url)
+    
+
+    sitemaps = []
+
+    lines = robots.text.splitlines()
+
+    for line in lines:
+        if line.startswith('Sitemap:'):
+            split = line.split(':', maxsplit=1)
+            sitemaps.append(split[1].strip())
+    
+    return sitemaps
+
 
 def remove_args(url, keep_params=(), frags=False):
     """

@@ -1,16 +1,24 @@
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 from scrapy.http import FormRequest
-from news_scraper.urls import valid_url
+from ...urls import valid_url, get_domain, get_scheme
 from ..items import NewsCrawlerItem
 
 class MenuSpider(CrawlSpider):
-  name = 'Menuscraper'
-  allowed_domains = ['www.allehanda.se', 'rss.aftonbladet.se']
-  start_urls = ['https://www.allehanda.se/']
+  name = 'menu_spider'
+  allowed_domains = None
+  start_urls = None
 
-  rules = (Rule(LxmlLinkExtractor(restrict_xpaths=['/html/body/nav'],allow=allowed_domains), callback='parse_obj', follow=True),)
-    
+  rules = None
+  
+  def __init__(self, url='', **kwargs):
+        domain_url = get_domain(url)
+        url_scheme = get_scheme(url)
+        self.allowed_domains = [domain_url]
+        self.start_urls = [url_scheme + "://" + domain_url]
+
+        self.rules = (Rule(LxmlLinkExtractor(restrict_xpaths=['/html/body/nav'],allow=self.allowed_domains), callback='parse_obj', follow=True),)
+        super().__init__(**kwargs)
 
   def parse_obj(self,response):
     if valid_url(response.url):

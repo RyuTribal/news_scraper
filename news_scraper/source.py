@@ -12,6 +12,8 @@ from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from tldextract import tldextract
 
+from news_scraper.news_crawler import crawler_settings
+
 from . import network
 from . import urls
 from . import utils
@@ -19,6 +21,14 @@ from .article import Article
 from .configuration import Configuration
 from .extractors import ContentExtractor
 from .settings import ANCHOR_DIRECTORY
+
+from .news_crawler.spiders.sitemap_spider import SitemapNewsSpider
+from .news_crawler.spiders.menu_spider import MenuSpider
+from scrapy.crawler import CrawlerProcess
+from scrapy.settings import Settings
+from .news_crawler import crawler_settings as default_settings
+
+
 
 log = logging.getLogger(__name__)
 
@@ -87,18 +97,30 @@ class Source(object):
         """Encapsulates download and basic parsing with lxml. May be a
         good idea to split this into download() and parse() methods.
         """
-        self.download()
-        self.parse()
+        spider_settings = Settings()
+        spider_settings.setmodule(default_settings)
+        process = CrawlerProcess(settings=spider_settings)
+        
 
-        self.set_categories()
-        self.download_categories()  # mthread
-        self.parse_categories()
+        if len(urls.get_sitemap(self.url)) > 0:
+            process.crawl(SitemapNewsSpider, url=self.url)
+        else:
+            process.crawl(MenuSpider, url=self.url)
+        
+        process.start()
 
-        self.set_feeds()
-        self.download_feeds()  # mthread
+        # self.download()
+        # self.parse()
+
+        # self.set_categories()
+        # self.download_categories()  # mthread
+        # self.parse_categories()
+
+        # self.set_feeds()
+        # self.download_feeds()  # mthread
         # self.parse_feeds()
 
-        self.generate_articles()
+        # self.generate_articles()
 
     def purge_articles(self, reason, articles):
         """Delete rejected articles, if there is an articles param,
