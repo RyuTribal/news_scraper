@@ -76,10 +76,29 @@ class ContentExtractor(object):
             self.stopwords_class = \
                 self.config.get_stopwords_class(meta_lang)
 
-    def get_authors(self, doc):
+    def get_authors(self, doc, json):
         """Fetch the authors of the article, return as a list
         Only works for english articles
         """
+        auth = []
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'author' in json[i]:
+                        try:
+                            for j in range(len(json[i]['author'])):
+                                auth.append(json[i]['author'][j]['name'])
+                        except:
+                            auth.append(json[i]['author']['name'])
+            except:
+                if 'author' in json:
+                    try:
+                        for j in range(len(json['author'])):
+                            auth.append(json['author'][j]['name'])
+                    except:
+                        auth.append(json['author']['name'])
+            return auth
+
         _digits = re.compile('\d')
 
         def contains_digits(d):
@@ -178,7 +197,29 @@ class ContentExtractor(object):
         #    return [] # Failed to find anything
         # return authors
 
-    def get_publishing_date(self, url, doc):
+    def get_Accessibility(self, doc, json):
+        """
+        Returns the accessibility of the article
+
+        NOTE: This method will return True if the json script does not contain the "isAccessibleForFree" key.
+        So that means it will sometimes return True even if the article is behind a paywall.
+        """
+        b = True
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'isAccessibleForFree' in json[i]:
+                        if (json[i]['isAccessibleForFree'] == 'False'):
+                            b = False
+            except:
+                if 'isAccessibleForFree' in json:
+                    if (json['isAccessibleForFree'] == 'False'):
+                            b = False
+
+            return b
+        return b
+
+    def get_publishing_date(self, url, doc, json):
         """3 strategies for publishing date extraction. The strategies
         are descending in accuracy and the next strategy is only
         attempted if a preferred one fails.
@@ -187,6 +228,17 @@ class ContentExtractor(object):
         2. Pubdate from metadata
         3. Raw regex searches in the HTML + added heuristics
         """
+        date = ""
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'datePublished' in json[i]:
+                        date += str(json[i]['datePublished'])
+            except:
+                if 'datePublished' in json:
+                    date += str(json['datePublished'])
+    
+            return date
 
         def parse_date_str(date_str):
             if date_str:
@@ -243,7 +295,7 @@ class ContentExtractor(object):
 
         return None
 
-    def get_title(self, doc):
+    def get_title(self, doc, json):
         """Fetch the article title and analyze it
 
         Assumptions:
@@ -260,6 +312,17 @@ class ContentExtractor(object):
         4. title starts with og:title, use og:title
         5. use title, after splitting
         """
+        jsonTitle = ''
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'headline' in json[i]:
+                        jsonTitle += str(json[i]['headline'])
+            except:
+                if 'headline' in json:
+                    jsonTitle += str(json['headline'])
+            return jsonTitle
+
         title = ''
         title_element = self.parser.getElementsByTag(doc, tag='title')
         # no title found
@@ -541,12 +604,15 @@ class ContentExtractor(object):
 
     def getjson(self, doc):
         soup = BeautifulSoup(doc, "html.parser")
-        jsonelement = soup.find_all('script', type='application/ld+json')[0].string
-        parsedjson = json.loads(jsonelement)
-        if(parsedjson is not None or len(parsedjson)>0):    
-            return parsedjson
-        else:
-            #TODO sniff ajax requests
+        try:
+            jsonelement = soup.find_all('script', type='application/ld+json')[0].string
+            parsedjson = json.loads(jsonelement)
+            if(parsedjson is not None or len(parsedjson)>0):    
+                return parsedjson
+            else:
+                #TODO sniff ajax requests
+                return None
+        except:
             return None
 
 
@@ -774,7 +840,24 @@ class ContentExtractor(object):
         category_urls = [c for c in category_urls if c is not None]
         return category_urls
 
-    def extract_tags(self, doc):
+    def extract_tags(self, doc, json):
+        tag = []
+        if json:
+            for i in range(len(json)):
+                try:
+                    if 'keywords' in json[i]:
+                        if isinstance(json[i]['keywords'], list):
+                            tag = json[i]['keywords']
+                        else:
+                            tag.append(json[i]['keywords'])
+                except:
+                    if 'keywords' in json:
+                        if isinstance(json['keywords'], list):
+                            tag = json['keywords']
+                        else:
+                            tag.append(json['keywords'])
+            return tag
+
         if len(list(doc)) == 0:
             return NO_STRINGS
         elements = self.parser.css_select(
