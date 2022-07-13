@@ -76,6 +76,8 @@ class Article(object):
 
         self.title = title
 
+        self.isAccessible = True
+
         # URL of the "best image" to represent this article
         self.top_img = self.top_image = ''
 
@@ -237,21 +239,22 @@ class Article(object):
         # refactor extractor method 
         title = self.extractor.get_title(self.clean_doc, self.json)
         self.set_title(title)
+
+        # refactor extractor method 
+        self.isAccessible = self.extractor.get_Accessibility(self.clean_doc, self.json)
         
         # refactor extractor method 
         authors = self.extractor.get_authors(self.clean_doc, self.json)
         self.set_authors(authors)
 
-        # refactor extractor method 
-        meta_lang = self.extractor.get_meta_lang(self.clean_doc, self.json)
+        meta_lang = self.extractor.get_meta_lang(self.clean_doc)
         self.set_meta_language(meta_lang)
 
         if self.config.use_meta_language:
             self.extractor.update_language(self.meta_lang)
             output_formatter.update_language(self.meta_lang)
 
-        # refactor extractor method 
-        meta_favicon = self.extractor.get_favicon(self.clean_doc, self.json)
+        meta_favicon = self.extractor.get_favicon(self.clean_doc)
         self.set_meta_favicon(meta_favicon)
 
         meta_site_name = self.extractor.get_meta_site_name(self.clean_doc)

@@ -195,6 +195,28 @@ class ContentExtractor(object):
         #    return [] # Failed to find anything
         # return authors
 
+    def get_Accessibility(self, doc, json):
+        """
+        Returns the accessibility of the article
+
+        NOTE: This method will return True if the json script does not contain the "isAccessibleForFree" key.
+        So that means it will sometimes return True even if the article is behind a paywall.
+        """
+        b = True
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'isAccessibleForFree' in json[i]:
+                        if (json[i]['isAccessibleForFree'] == 'False'):
+                            b = False
+            except:
+                if 'isAccessibleForFree' in json:
+                    if (json['isAccessibleForFree'] == 'False'):
+                            b = False
+
+            return b
+        return b
+
     def get_publishing_date(self, url, doc, json):
         """3 strategies for publishing date extraction. The strategies
         are descending in accuracy and the next strategy is only
@@ -204,6 +226,17 @@ class ContentExtractor(object):
         2. Pubdate from metadata
         3. Raw regex searches in the HTML + added heuristics
         """
+        date = ""
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'datePublished' in json[i]:
+                        date += str(json[i]['datePublished'])
+            except:
+                if 'datePublished' in json:
+                    date += str(json['datePublished'])
+    
+            return date
 
         def parse_date_str(date_str):
             if date_str:
@@ -277,6 +310,17 @@ class ContentExtractor(object):
         4. title starts with og:title, use og:title
         5. use title, after splitting
         """
+        jsonTitle = ''
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'headline' in json[i]:
+                        jsonTitle += str(json[i]['headline'])
+            except:
+                if 'headline' in json:
+                    jsonTitle += str(json['headline'])
+            return jsonTitle
+
         title = ''
         title_element = self.parser.getElementsByTag(doc, tag='title')
         # no title found
@@ -418,7 +462,7 @@ class ContentExtractor(object):
         total_feed_urls = list(set(total_feed_urls))
         return total_feed_urls
 
-    def get_favicon(self, doc, json):
+    def get_favicon(self, doc):
         """Extract the favicon from a website http://en.wikipedia.org/wiki/Favicon
         <link rel="shortcut icon" type="image/png" href="favicon.png" />
         <link rel="icon" type="image/png" href="favicon.png" />
@@ -430,7 +474,7 @@ class ContentExtractor(object):
             return favicon
         return ''
 
-    def get_meta_lang(self, doc, json):
+    def get_meta_lang(self, doc):
         """Extract content language from meta
         """
         # we have a lang attribute in html
@@ -795,6 +839,23 @@ class ContentExtractor(object):
         return category_urls
 
     def extract_tags(self, doc, json):
+        tag = []
+        if json:
+            for i in range(len(json)):
+                try:
+                    if 'keywords' in json[i]:
+                        if isinstance(json[i]['keywords'], list):
+                            tag = json[i]['keywords']
+                        else:
+                            tag.append(json[i]['keywords'])
+                except:
+                    if 'keywords' in json:
+                        if isinstance(json['keywords'], list):
+                            tag = json['keywords']
+                        else:
+                            tag.append(json['keywords'])
+            return tag
+
         if len(list(doc)) == 0:
             return NO_STRINGS
         elements = self.parser.css_select(
