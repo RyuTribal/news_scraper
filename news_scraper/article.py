@@ -73,6 +73,11 @@ class Article(object):
 
         self.title = title
 
+        # Check if article is subscription only
+        self.isPaid = False
+
+        self.test = []
+
         # URL of the "best image" to represent this article
         self.top_img = self.top_image = ''
 
@@ -228,6 +233,8 @@ class Article(object):
 
         title = self.extractor.get_title(self.clean_doc)
         self.set_title(title)
+
+        self.test = self.extractor.is_paid(self.doc)
 
         authors = self.extractor.get_authors(self.clean_doc)
         self.set_authors(authors)

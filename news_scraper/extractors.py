@@ -351,6 +351,36 @@ class ContentExtractor(object):
 
         return title
 
+    # Scrape and lick (https://tenor.com/view/scrape-and-lick-gif-13011908)
+    def is_paid(self, doc):
+        """
+        Check if the article is paid.
+        """
+
+        # Tags
+        tags = ['span', 'h2', 'button']
+
+        # Words in tags that indicate paid content ('logga in' needs exeptions)
+        values = ['köp', 'prenumeration', 'plus', 'kr']
+
+        lst = []
+
+        # Check only inside the main tag
+        main = self.parser.getElementsByTag(doc, tag='main')
+        main = main[0]
+        
+        for tag in tags:
+            t = self.parser.getElementsByTag(main, tag=tag)
+            for text in t:
+                output = self.parser.getText(text)
+                output = output.lower()
+                if output:
+                    res = [ele for ele in values if(ele in output)]
+                    if bool(res):
+                        lst.append(output)
+
+        return lst
+
     def split_title(self, title, splitter, hint=None):
         """Split the title to best part possible
         """
