@@ -69,6 +69,9 @@ class Article(object):
         # URL to the main page of the news source which owns this article
         self.source_url = source_url
 
+        #Json file that we get from script tag with type="application/ld+json"
+        self.json = None
+
         self.url = urls.prepare_url(url, self.source_url)
 
         self.title = title
@@ -210,7 +213,12 @@ class Article(object):
         self.set_title(title)
 
     def parse(self):
+        
         self.throw_if_not_downloaded_verbose()
+
+
+        self.json= self.extractor.getjson(self.html)
+        
 
         self.doc = self.config.get_parser().fromstring(self.html)
         self.clean_doc = copy.deepcopy(self.doc)
@@ -226,20 +234,24 @@ class Article(object):
         document_cleaner = DocumentCleaner(self.config)
         output_formatter = OutputFormatter(self.config)
 
-        title = self.extractor.get_title(self.clean_doc)
+        # refactor extractor method 
+        title = self.extractor.get_title(self.clean_doc, self.json)
         self.set_title(title)
-
-        authors = self.extractor.get_authors(self.clean_doc)
+        
+        # refactor extractor method 
+        authors = self.extractor.get_authors(self.clean_doc, self.json)
         self.set_authors(authors)
 
-        meta_lang = self.extractor.get_meta_lang(self.clean_doc)
+        # refactor extractor method 
+        meta_lang = self.extractor.get_meta_lang(self.clean_doc, self.json)
         self.set_meta_language(meta_lang)
 
         if self.config.use_meta_language:
             self.extractor.update_language(self.meta_lang)
             output_formatter.update_language(self.meta_lang)
 
-        meta_favicon = self.extractor.get_favicon(self.clean_doc)
+        # refactor extractor method 
+        meta_favicon = self.extractor.get_favicon(self.clean_doc, self.json)
         self.set_meta_favicon(meta_favicon)
 
         meta_site_name = self.extractor.get_meta_site_name(self.clean_doc)
@@ -253,7 +265,8 @@ class Article(object):
             self.url, self.clean_doc)
         self.set_canonical_link(canonical_link)
 
-        tags = self.extractor.extract_tags(self.clean_doc)
+        # refactor extractor method 
+        tags = self.extractor.extract_tags(self.clean_doc, self.json)
         self.set_tags(tags)
 
         meta_keywords = self.extractor.get_meta_keywords(
@@ -263,9 +276,10 @@ class Article(object):
         meta_data = self.extractor.get_meta_data(self.clean_doc)
         self.set_meta_data(meta_data)
 
+        # refactor extractor method 
         self.publish_date = self.extractor.get_publishing_date(
             self.url,
-            self.clean_doc)
+            self.clean_doc, self.json)
 
         # Before any computations on the body, clean DOM object
         self.doc = document_cleaner.clean(self.doc)
@@ -565,20 +579,3 @@ class Article(object):
         """
         if not self.is_parsed:
             raise ArticleException('You must `parse()` an article first!')
-    
-    def get_dict(self):
-        return {
-            "title": self.title,
-            "top_img": self.top_img,
-            "images": self.imgs,
-            "movies" : self.movies,
-            "keywords": self.keywords,
-            "meta_keywords": self.meta_keywords,
-            "tags": self.tags,
-            "authors": self.authors,
-            "publish_date": self.publish_date,
-            "summary": self.summary,
-            "meta_data": self.meta_data,
-            "source_url": self.source_url,
-            "url" : self.url,
-        }
