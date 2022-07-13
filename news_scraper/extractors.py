@@ -13,11 +13,16 @@ __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
 __copyright__ = "Copyright 2022, EIOP"
 
 
+from cgitb import html
 import copy
 import logging
 import re
 import re
 from collections import defaultdict
+
+import json
+
+from bs4 import BeautifulSoup
 
 from dateutil.parser import parse as date_parser
 from tldextract import tldextract
@@ -529,6 +534,19 @@ class ContentExtractor(object):
                     ref[part] = {'identifier': ref[part]}
                 ref = ref[part]
         return data
+
+
+
+    def getjson(self, doc):
+        soup = BeautifulSoup(doc, "html.parser")
+        jsonelement = soup.find_all('script', type='application/ld+json')[0].string
+        parsedjson = json.loads(jsonelement)
+        if(parsedjson is not None or len(parsedjson)>0):    
+            return parsedjson
+        else:
+            #TODO sniff ajax requests
+            return None
+
 
     def get_canonical_link(self, article_url, doc):
         """
