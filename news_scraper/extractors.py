@@ -103,8 +103,8 @@ class ContentExtractor(object):
             # Remove HTML boilerplate
             search_str = re.sub('<[^<]+?>', '', search_str)
 
-            # Remove original By statement
-            search_str = re.sub('[bB][yY][\:\s]|[fF]rom[\:\s]', '', search_str)
+            # Remove original Av statement
+            search_str = re.sub('[aA][vV][\:\s]|[fF]rom[\:\s]', '', search_str)
 
             search_str = search_str.strip()
 
@@ -117,7 +117,7 @@ class ContentExtractor(object):
             _authors = []
             # List of first, last name tokens
             curname = []
-            delimiters = ['and', ',', '']
+            delimiters = ['och', ',', '']
 
             for token in name_tokens:
                 if token in delimiters:
@@ -137,8 +137,9 @@ class ContentExtractor(object):
 
         # Try 1: Search popular author tags for authors
 
+        TAGS = ['a', 'span']
         ATTRS = ['name', 'rel', 'itemprop', 'class', 'id']
-        VALS = ['author', 'byline', 'dc.creator', 'byl']
+        VALS = ['author', 'byline', 'dc.creator', 'byl', 'article__byline', 'article__author-name']
         matches = []
         authors = []
 
@@ -146,7 +147,8 @@ class ContentExtractor(object):
             for val in VALS:
                 # found = doc.xpath('//*[@%s="%s"]' % (attr, val))
                 found = self.parser.getElementsByTag(doc, attr=attr, value=val)
-                matches.extend(found)
+                if "Foto:" not in found:
+                    matches.extend(found)
 
         for match in matches:
             content = ''
