@@ -76,10 +76,29 @@ class ContentExtractor(object):
             self.stopwords_class = \
                 self.config.get_stopwords_class(meta_lang)
 
-    def get_authors(self, doc):
+    def get_authors(self, doc, json):
         """Fetch the authors of the article, return as a list
         Only works for english articles
         """
+        auth = []
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'author' in json[i]:
+                        try:
+                            for j in range(len(json[i]['author'])):
+                                auth.append(json[i]['author'][j]['name'])
+                        except:
+                            auth.append(json[i]['author']['name'])
+            except:
+                if 'author' in json:
+                    try:
+                        for j in range(len(json['author'])):
+                            auth.append(json['author'][j]['name'])
+                    except:
+                        auth.append(json['author']['name'])
+            return auth
+
         _digits = re.compile('\d')
 
         def contains_digits(d):
@@ -176,7 +195,7 @@ class ContentExtractor(object):
         #    return [] # Failed to find anything
         # return authors
 
-    def get_publishing_date(self, url, doc):
+    def get_publishing_date(self, url, doc, json):
         """3 strategies for publishing date extraction. The strategies
         are descending in accuracy and the next strategy is only
         attempted if a preferred one fails.
@@ -241,7 +260,7 @@ class ContentExtractor(object):
 
         return None
 
-    def get_title(self, doc):
+    def get_title(self, doc, json):
         """Fetch the article title and analyze it
 
         Assumptions:
@@ -399,7 +418,7 @@ class ContentExtractor(object):
         total_feed_urls = list(set(total_feed_urls))
         return total_feed_urls
 
-    def get_favicon(self, doc):
+    def get_favicon(self, doc, json):
         """Extract the favicon from a website http://en.wikipedia.org/wiki/Favicon
         <link rel="shortcut icon" type="image/png" href="favicon.png" />
         <link rel="icon" type="image/png" href="favicon.png" />
@@ -411,7 +430,7 @@ class ContentExtractor(object):
             return favicon
         return ''
 
-    def get_meta_lang(self, doc):
+    def get_meta_lang(self, doc, json):
         """Extract content language from meta
         """
         # we have a lang attribute in html
@@ -539,12 +558,15 @@ class ContentExtractor(object):
 
     def getjson(self, doc):
         soup = BeautifulSoup(doc, "html.parser")
-        jsonelement = soup.find_all('script', type='application/ld+json')[0].string
-        parsedjson = json.loads(jsonelement)
-        if(parsedjson is not None or len(parsedjson)>0):    
-            return parsedjson
-        else:
-            #TODO sniff ajax requests
+        try:
+            jsonelement = soup.find_all('script', type='application/ld+json')[0].string
+            parsedjson = json.loads(jsonelement)
+            if(parsedjson is not None or len(parsedjson)>0):    
+                return parsedjson
+            else:
+                #TODO sniff ajax requests
+                return None
+        except:
             return None
 
 
@@ -772,7 +794,7 @@ class ContentExtractor(object):
         category_urls = [c for c in category_urls if c is not None]
         return category_urls
 
-    def extract_tags(self, doc):
+    def extract_tags(self, doc, json):
         if len(list(doc)) == 0:
             return NO_STRINGS
         elements = self.parser.css_select(
