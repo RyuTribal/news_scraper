@@ -10,14 +10,17 @@ class MenuSpider(CrawlSpider):
   start_urls = None
 
   rules = None
+
+  bad_paths = ['careers', 'contact', 'about', 'faq', 'terms', 'privacy',
+              'advert', 'preferences', 'feedback', 'info', 'browse', 'howto',
+              'account', 'subscribe', 'donate', 'shop', 'admin']
   
   def __init__(self, url='', **kwargs):
         domain_url = get_domain(url)
         url_scheme = get_scheme(url)
         self.allowed_domains = [domain_url]
         self.start_urls = [url_scheme + "://" + domain_url]
-
-        self.rules = (Rule(LxmlLinkExtractor(restrict_xpaths=['/html/body/nav'],allow=self.allowed_domains), callback='parse_obj', follow=True),)
+        self.rules = (Rule(LxmlLinkExtractor(allow=self.allowed_domains), callback='parse_obj', follow=True),)
         super().__init__(**kwargs)
 
   def parse_obj(self,response):

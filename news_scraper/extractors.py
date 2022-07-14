@@ -78,7 +78,6 @@ class ContentExtractor(object):
 
     def get_authors(self, doc, json):
         """Fetch the authors of the article, return as a list
-        Only works for english articles
         """
         auth = []
         if json:
@@ -159,9 +158,9 @@ class ContentExtractor(object):
 
             return _authors
 
+
         # Try 1: Search popular author tags for authors
 
-        TAGS = ['a', 'span']
         ATTRS = ['name', 'rel', 'itemprop', 'class', 'id']
         VALS = ['author', 'byline', 'dc.creator', 'byl', 'article__byline', 'article__author-name']
         matches = []
@@ -187,7 +186,7 @@ class ContentExtractor(object):
 
         return uniqify_list(authors)
 
-        # TODO Method 2: Search raw html for a by-line
+        # TODO Method 3: Search raw html for a by-line
         # match = re.search('By[\: ].*\\n|From[\: ].*\\n', html)
         # try:
         #    # Don't let zone be too long
@@ -248,6 +247,8 @@ class ContentExtractor(object):
                     # near all parse failures are due to URL dates without a day
                     # specifier, e.g. /2014/04/
                     return None
+
+        # Try 1, search popular html terms
 
         date_match = re.search(urls.STRICT_DATE_REGEX, url)
         if date_match:

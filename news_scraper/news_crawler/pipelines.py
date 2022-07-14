@@ -7,7 +7,7 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 import json
-from news_scraper import Article
+from ..article import Article
 import os
 
 
