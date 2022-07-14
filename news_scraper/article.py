@@ -8,6 +8,7 @@ import logging
 import copy
 import os
 import glob
+import spacy
 from urllib.parse import urlparse
 
 import requests
@@ -77,6 +78,8 @@ class Article(object):
         self.title = title
 
         self.isAccessible = True
+
+        self.spacyKeywords = []
 
         # URL of the "best image" to represent this article
         self.top_img = self.top_image = ''
@@ -385,6 +388,19 @@ class Article(object):
             if s in self.url:
                 return True
         return False
+
+    def nlpSpacy(self):
+        """
+        Keyword extraction using spacy
+        """
+        self.throw_if_not_downloaded_verbose()
+        self.throw_if_not_parsed_verbose()
+
+        nlp = spacy.load("sv_core_news_lg")
+        doc = nlp(self.text)
+
+        for i in doc.ents:
+            self.spacyKeywords.append(i.text)
 
     def nlp(self):
         """Keyword extraction wrapper
