@@ -10,6 +10,7 @@ __copyright__ = "Copyright 2022, EIOP"
 
 import re
 import math
+import spacy
 from os import path
 
 from collections import Counter
@@ -209,3 +210,23 @@ def sentence_position(i, size):
         return 0.17
     else:
         return 0
+
+def spacyKeywords(text):
+    """
+    Keyword extraction using spacy
+    """
+    keywords = []
+
+    nlp = spacy.load("sv_core_news_lg")
+
+    stopwords = nlp.Defaults.stop_words
+
+    doc = nlp(text)
+
+    for i in doc.ents:
+        if i.text.lower() not in stopwords:
+            keywords.append(i.text.lower())
+
+    keywords = list(dict.fromkeys(keywords))
+    
+    return keywords

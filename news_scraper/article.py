@@ -79,8 +79,6 @@ class Article(object):
 
         self.isAccessible = True
 
-        self.spacyKeywords = []
-
         # URL of the "best image" to represent this article
         self.top_img = self.top_image = ''
 
@@ -95,6 +93,9 @@ class Article(object):
 
         # Body text from this article
         self.text = ''
+
+        # `keywords` are extracted via nlpSpacy() from the body text
+        self.keywordsSpacy = []
 
         # `keywords` are extracted via nlp() from the body text
         self.keywords = []
@@ -388,7 +389,7 @@ class Article(object):
             if s in self.url:
                 return True
         return False
-
+    
     def nlpSpacy(self):
         """
         Keyword extraction using spacy
@@ -396,15 +397,14 @@ class Article(object):
         self.throw_if_not_downloaded_verbose()
         self.throw_if_not_parsed_verbose()
 
-        nlp = spacy.load("sv_core_news_lg")
-        doc = nlp(self.text)
+        self.keywordsSpacy = nlp.spacyKeywords(self.text)
 
-        for i in doc.ents:
-            self.spacyKeywords.append(i.text)
+        return self.keywordsSpacy
 
     def nlp(self):
         """Keyword extraction wrapper
         """
+
         self.throw_if_not_downloaded_verbose()
         self.throw_if_not_parsed_verbose()
 
