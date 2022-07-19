@@ -99,6 +99,12 @@ class ContentExtractor(object):
                         auth.append(json['author']['name'])
             return auth
 
+        sport = self.parser.getElementsByTag(doc, tag='article', attr='data-authors')
+        artt = self.parser.getAttribute(sport[0], 'data-authors')
+        if artt:
+            auth.append(artt)
+            return auth
+
         _digits = re.compile('\d')
 
         def contains_digits(d):
