@@ -94,6 +94,8 @@ class Article(object):
         # Body text from this article
         self.text = ''
 
+        self.sportCategory = ''
+
         # `keywords` are extracted via nlpSpacy() from the body text
         self.keywordsSpacy = []
 
@@ -246,6 +248,8 @@ class Article(object):
 
         # refactor extractor method 
         self.isAccessible = self.extractor.get_Accessibility(self.clean_doc, self.json)
+
+        self.sportCategory = self.extractor.get_sportCategory(self.clean_doc, self.url)
         
         # refactor extractor method 
         authors = self.extractor.get_authors(self.clean_doc, self.json)

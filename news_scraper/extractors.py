@@ -217,6 +217,21 @@ class ContentExtractor(object):
             return b
         return b
 
+    def get_sportCategory(self, doc, url):
+        """
+        Returns the sport category of the article
+        """
+        sports = ['fotboll', 'basket', 'futsal', 'bandy', 'innebandy', 'ishockey', 'hockey', 'golf', 'padel', 'handboll', 'ridsport', 'friidrott', 'simning', 'tennis', 'motorsport', 'baseball', 'mma', 'boxning', 'cykling', 'volleyboll']
+        
+        urlString = str(url)
+        splitted_string = urlString.split("/")
+        splitted_string.pop(-1)
+        for i in sports:
+            if i in splitted_string:
+                return str(i)
+        
+        
+
     def get_publishing_date(self, url, doc, json):
         """3 strategies for publishing date extraction. The strategies
         are descending in accuracy and the next strategy is only
