@@ -230,8 +230,19 @@ class ContentExtractor(object):
             if i in splitted_string:
                 return str(i)
         
+        ogURL = self.get_meta_content(doc, 'meta[property="og:url"]')
+        urlString = str(ogURL)
+        splitted_string = urlString.split("/")
+        splitted_string.pop(-1)
+        for i in sports:
+            if i in splitted_string:
+                return str(i)
         
-
+        sport = self.parser.getElementsByTag(doc, tag='article', attr='data-tags')
+        artt = self.parser.getAttribute(sport[0], 'data-tags')
+        if artt:
+            return artt
+        
     def get_publishing_date(self, url, doc, json):
         """3 strategies for publishing date extraction. The strategies
         are descending in accuracy and the next strategy is only
