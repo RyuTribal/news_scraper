@@ -270,6 +270,13 @@ class ContentExtractor(object):
                     date += str(json['datePublished'])
     
             return date
+        
+        dateTime = self.parser.getElementsByTag(doc, tag='time', attr='dateTime')
+
+        if dateTime:
+            for i in range(len(dateTime)):
+                if len(str(dateTime[i].text_content())) > 7:
+                    return str(dateTime[i].text_content())
 
         def parse_date_str(date_str):
             if date_str:
