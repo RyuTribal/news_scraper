@@ -13,11 +13,16 @@ __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
 __copyright__ = "Copyright 2022, EIOP"
 
 
+from cgitb import html
 import copy
 import logging
 import re
 import re
 from collections import defaultdict
+
+import json
+
+from bs4 import BeautifulSoup
 
 from dateutil.parser import parse as date_parser
 from tldextract import tldextract
@@ -71,10 +76,28 @@ class ContentExtractor(object):
             self.stopwords_class = \
                 self.config.get_stopwords_class(meta_lang)
 
-    def get_authors(self, doc):
+    def get_authors(self, doc, json):
         """Fetch the authors of the article, return as a list
-        Only works for english articles
         """
+        auth = []
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'author' in json[i]:
+                        try:
+                            for j in range(len(json[i]['author'])):
+                                auth.append(json[i]['author'][j]['name'])
+                        except:
+                            auth.append(json[i]['author']['name'])
+            except:
+                if 'author' in json:
+                    try:
+                        for j in range(len(json['author'])):
+                            auth.append(json['author'][j]['name'])
+                    except:
+                        auth.append(json['author']['name'])
+            return auth
+
         _digits = re.compile('\d')
 
         def contains_digits(d):
@@ -103,8 +126,8 @@ class ContentExtractor(object):
             # Remove HTML boilerplate
             search_str = re.sub('<[^<]+?>', '', search_str)
 
-            # Remove original By statement
-            search_str = re.sub('[bB][yY][\:\s]|[fF]rom[\:\s]', '', search_str)
+            # Remove original Av statement
+            search_str = re.sub('[aA][vV][\:\s]|[fF]rom[\:\s]', '', search_str)
 
             search_str = search_str.strip()
 
@@ -117,7 +140,7 @@ class ContentExtractor(object):
             _authors = []
             # List of first, last name tokens
             curname = []
-            delimiters = ['and', ',', '']
+            delimiters = ['och', ',', '']
 
             for token in name_tokens:
                 if token in delimiters:
@@ -135,10 +158,11 @@ class ContentExtractor(object):
 
             return _authors
 
+
         # Try 1: Search popular author tags for authors
 
         ATTRS = ['name', 'rel', 'itemprop', 'class', 'id']
-        VALS = ['author', 'byline', 'dc.creator', 'byl']
+        VALS = ['author', 'byline', 'dc.creator', 'byl', 'article__byline', 'article__author-name']
         matches = []
         authors = []
 
@@ -146,7 +170,8 @@ class ContentExtractor(object):
             for val in VALS:
                 # found = doc.xpath('//*[@%s="%s"]' % (attr, val))
                 found = self.parser.getElementsByTag(doc, attr=attr, value=val)
-                matches.extend(found)
+                if "Foto:" not in found:
+                    matches.extend(found)
 
         for match in matches:
             content = ''
@@ -161,7 +186,7 @@ class ContentExtractor(object):
 
         return uniqify_list(authors)
 
-        # TODO Method 2: Search raw html for a by-line
+        # TODO Method 3: Search raw html for a by-line
         # match = re.search('By[\: ].*\\n|From[\: ].*\\n', html)
         # try:
         #    # Don't let zone be too long
@@ -171,7 +196,29 @@ class ContentExtractor(object):
         #    return [] # Failed to find anything
         # return authors
 
-    def get_publishing_date(self, url, doc):
+    def get_Accessibility(self, doc, json):
+        """
+        Returns the accessibility of the article
+
+        NOTE: This method will return True if the json script does not contain the "isAccessibleForFree" key.
+        So that means it will sometimes return True even if the article is behind a paywall.
+        """
+        b = True
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'isAccessibleForFree' in json[i]:
+                        if (json[i]['isAccessibleForFree'] == 'False'):
+                            b = False
+            except:
+                if 'isAccessibleForFree' in json:
+                    if (json['isAccessibleForFree'] == 'False'):
+                            b = False
+
+            return b
+        return b
+
+    def get_publishing_date(self, url, doc, json):
         """3 strategies for publishing date extraction. The strategies
         are descending in accuracy and the next strategy is only
         attempted if a preferred one fails.
@@ -180,6 +227,17 @@ class ContentExtractor(object):
         2. Pubdate from metadata
         3. Raw regex searches in the HTML + added heuristics
         """
+        date = ""
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'datePublished' in json[i]:
+                        date += str(json[i]['datePublished'])
+            except:
+                if 'datePublished' in json:
+                    date += str(json['datePublished'])
+    
+            return date
 
         def parse_date_str(date_str):
             if date_str:
@@ -189,6 +247,8 @@ class ContentExtractor(object):
                     # near all parse failures are due to URL dates without a day
                     # specifier, e.g. /2014/04/
                     return None
+
+        # Try 1, search popular html terms
 
         date_match = re.search(urls.STRICT_DATE_REGEX, url)
         if date_match:
@@ -236,7 +296,7 @@ class ContentExtractor(object):
 
         return None
 
-    def get_title(self, doc):
+    def get_title(self, doc, json):
         """Fetch the article title and analyze it
 
         Assumptions:
@@ -253,6 +313,17 @@ class ContentExtractor(object):
         4. title starts with og:title, use og:title
         5. use title, after splitting
         """
+        jsonTitle = ''
+        if json:
+            try:
+                for i in range(len(json)):
+                    if 'headline' in json[i]:
+                        jsonTitle += str(json[i]['headline'])
+            except:
+                if 'headline' in json:
+                    jsonTitle += str(json['headline'])
+            return jsonTitle
+
         title = ''
         title_element = self.parser.getElementsByTag(doc, tag='title')
         # no title found
@@ -530,6 +601,22 @@ class ContentExtractor(object):
                 ref = ref[part]
         return data
 
+
+
+    def getjson(self, doc):
+        soup = BeautifulSoup(doc, "html.parser")
+        try:
+            jsonelement = soup.find_all('script', type='application/ld+json')[0].string
+            parsedjson = json.loads(jsonelement)
+            if(parsedjson is not None or len(parsedjson)>0):    
+                return parsedjson
+            else:
+                #TODO sniff ajax requests
+                return None
+        except:
+            return None
+
+
     def get_canonical_link(self, article_url, doc):
         """
         Return the article's canonical URL
@@ -754,7 +841,24 @@ class ContentExtractor(object):
         category_urls = [c for c in category_urls if c is not None]
         return category_urls
 
-    def extract_tags(self, doc):
+    def extract_tags(self, doc, json):
+        tag = []
+        if json:
+            for i in range(len(json)):
+                try:
+                    if 'keywords' in json[i]:
+                        if isinstance(json[i]['keywords'], list):
+                            tag = json[i]['keywords']
+                        else:
+                            tag.append(json[i]['keywords'])
+                except:
+                    if 'keywords' in json:
+                        if isinstance(json['keywords'], list):
+                            tag = json['keywords']
+                        else:
+                            tag.append(json['keywords'])
+            return tag
+
         if len(list(doc)) == 0:
             return NO_STRINGS
         elements = self.parser.css_select(
