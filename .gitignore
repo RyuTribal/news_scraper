@@ -45,3 +45,6 @@ venv
 
 # Test log file
 ./news_scraper/news_crawler/log.txt
+
+# Editor stuff
+.vs-code/*
