@@ -176,7 +176,7 @@ class ArticleTestCase(unittest.TestCase):
     @print_test
     def test_download_html(self):
         self.setup_stage('download')
-        html = mock_resource_with('cnn_article', 'html')
+        html = mock_resource_with('aftonbladet_article', 'html')
         self.article.download(html)
         self.assertEqual(self.article.download_state, ArticleDownloadState.SUCCESS)
         self.assertEqual(self.article.download_exception_msg, None)
@@ -330,7 +330,7 @@ class ArticleTestCase(unittest.TestCase):
 class TestDownloadScheme(unittest.TestCase):
     @print_test
     def test_download_file_success(self):
-        url = "file://" + os.path.join(HTML_FN, "cnn_article.html")
+        url = "file://" + os.path.join(HTML_FN, "aftonbladet_article.html")
         article = Article(url=url)
         article.download()
         self.assertEqual(article.download_state, ArticleDownloadState.SUCCESS)
@@ -485,7 +485,7 @@ class SourceTestCase(unittest.TestCase):
         FEEDS = ['http://rss.cnn.com/rss/edition.rss']
         BRAND = 'cnn'
 
-        s = Source('http://cnn.com', verbose=False, memoize_articles=False)
+        s = Source('http://cnn.com', verbose=False, memorize_articles=False)
         # html = mock_resource_with('http://cnn.com', 'cnn_main_site')
         s.clean_memo_cache()
         s.build()
