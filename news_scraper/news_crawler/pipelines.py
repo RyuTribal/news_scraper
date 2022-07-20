@@ -9,15 +9,21 @@ from itemadapter import ItemAdapter
 import json
 from ..article import Article
 import os
+from ..db import ElasticDB
+import configparser
 
 
 class NewsCrawlerPipeline:
     file = None
     def open_spider(self, spider):
-        self.file = open('articles.jl', 'w+')
+        #self.file = open('articles.jl', 'w+')
+        config = configparser.ConfigParser()
+        config.read('elastic.ini')
+        self.elastic = ElasticDB(username=config['ELASTIC']['username'], password=config['ELASTIC']['password'], sha_cert=config['ELASTIC']['cert'], url=config['ELASTIC']['url'])
 
     def close_spider(self, spider):
-        self.file.close()
+        #self.file.close()
+        pass
 
     def process_item(self, item, spider):
         url = ItemAdapter(item).get('url')
@@ -26,9 +32,9 @@ class NewsCrawlerPipeline:
         article_dict = article.get_dict()
         final_data = json.dumps(
             article_dict, indent=2, ensure_ascii=False, default=serialize_sets) + "\n"
-        self.file.write(final_data)
-
-        return item
+        #self.file.write(final_data)
+        self.elastic.add_document(final_data)
+        return final_data
 
 
 def serialize_sets(obj):
