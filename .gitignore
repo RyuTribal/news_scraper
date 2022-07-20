@@ -47,4 +47,4 @@ venv
 ./news_scraper/news_crawler/log.txt
 
 # Editor stuff
-.vs-code/*
+.vscode/*
