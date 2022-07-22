@@ -98,11 +98,12 @@ class ContentExtractor(object):
                         auth.append(json['author']['name'])
             return auth
 
-        sport = self.parser.getElementsByTag(doc, tag='article', attr='data-authors')
-        artt = self.parser.getAttribute(sport[0], 'data-authors')
-        if artt:
-            auth.append(artt)
-            return auth
+        au = self.parser.getElementsByTag(doc, tag='article', attr='data-authors')
+        if au:
+            artt = self.parser.getAttribute(au[0], 'data-authors')
+            if artt:
+                auth.append(artt)
+                return auth
 
         _digits = re.compile('\d')
 
@@ -236,19 +237,22 @@ class ContentExtractor(object):
         for i in sports:
             if i in splitted_string:
                 return str(i)
-        
-        ogURL = self.get_meta_content(doc, 'meta[property="og:url"]')
-        urlString = str(ogURL)
-        splitted_string = urlString.split("/")
-        splitted_string.pop(-1)
-        for i in sports:
-            if i in splitted_string:
-                return str(i)
+        try:
+            ogURL = self.get_meta_content(doc, 'meta[property="og:url"]')
+            urlString = str(ogURL)
+            splitted_string = urlString.split("/")
+            splitted_string.pop(-1)
+            for i in sports:
+                if i in splitted_string:
+                    return str(i)
+        except:
+            pass
         
         sport = self.parser.getElementsByTag(doc, tag='article', attr='data-tags')
         artt = self.parser.getAttribute(sport[0], 'data-tags')
-        if artt:
-            return artt
+        if sport:
+            if artt:
+                return artt
         
     def get_publishing_date(self, url, doc, json):
         """3 strategies for publishing date extraction. The strategies

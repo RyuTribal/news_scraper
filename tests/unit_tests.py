@@ -163,14 +163,12 @@ class ArticleTestCase(unittest.TestCase):
         """Called before the first test case of this unit begins
         """
         self.article = Article(
-            url='http://www.cnn.com/2013/11/27/travel/weather-'
-                'thanksgiving/index.html?iref=allsearch')
+            url='https://www.aftonbladet.se/sportbladet/fotboll/a/oW4EAB/vorskla-poltava-infor-ecl-kvalet-mot-aik-spelar-for-ukraina')
 
     @print_test
     def test_url(self):
         self.assertEqual(
-            'http://www.cnn.com/2013/11/27/travel/weather-'
-            'thanksgiving/index.html?iref=allsearch',
+            'https://www.aftonbladet.se/sportbladet/fotboll/a/oW4EAB/vorskla-poltava-infor-ecl-kvalet-mot-aik-spelar-for-ukrainah',
             self.article.url)
 
     @print_test
@@ -217,24 +215,22 @@ class ArticleTestCase(unittest.TestCase):
     def test_parse_html(self):
         self.setup_stage('parse')
 
-        AUTHORS = ['Chien-Ming Wang', 'Dana A. Ford', 'James S.A. Corey',
-                   'Tom Watkins']
-        TITLE = 'After storm, forecasters see smooth sailing for Thanksgiving'
+        AUTHORS = ['Wolfgang Hansson']
+        TITLE = 'Underhållande skrönor avlöser varandra'
         LEN_IMGS = 46
-        META_LANG = 'en'
-        META_SITE_NAME = 'CNN'
+        META_LANG = 'sv'
+        META_SITE_NAME = 'aftonbladet'
 
         self.article.parse()
         self.article.nlp()
 
-        text = mock_resource_with('cnn', 'txt')
+        text = mock_resource_with('aftonbladet', 'txt')
         self.assertEqual(text, self.article.text)
         self.assertEqual(text, fulltext(self.article.html))
 
         # NOTE: top_img extraction requires an internet connection
         # unlike the rest of this test file
-        TOP_IMG = ('http://i2.cdn.turner.com/cnn/dam/assets/131129200805-'
-                   '01-weather-1128-story-top.jpg')
+        TOP_IMG = ('https://images.aftonbladet-cdn.se/v2/images/15b1e04e-7d60-4d3f-af3d-93d434b39300?fit=crop&format=auto&h=467&q=50&w=700&s=333f1c4455fe1966ca0a96674ce5bef2544ffd91')
         self.assertEqual(TOP_IMG, self.article.top_img)
 
         self.assertCountEqual(AUTHORS, self.article.authors)
@@ -242,7 +238,7 @@ class ArticleTestCase(unittest.TestCase):
         self.assertEqual(LEN_IMGS, len(self.article.imgs))
         self.assertEqual(META_LANG, self.article.meta_lang)
         self.assertEqual(META_SITE_NAME, self.article.meta_site_name)
-        self.assertEqual('2013-11-27 00:00:00', str(self.article.publish_date))
+        self.assertEqual('2022-07-13T05:04:23Z', str(self.article.publish_date))
 
     @print_test
     def test_meta_type_extraction(self):
@@ -323,6 +319,7 @@ class ArticleTestCase(unittest.TestCase):
                     'good', 'sailing', 'smooth', 'storm', 'thanksgiving',
                     'travel', 'weather', 'winds', 'york']
         SUMMARY = mock_resource_with('cnn_summary', 'txt')
+        self.maxDiff = None
         self.assertEqual(SUMMARY, self.article.summary)
         self.assertCountEqual(KEYWORDS, self.article.keywords)
 
@@ -330,7 +327,8 @@ class ArticleTestCase(unittest.TestCase):
 class TestDownloadScheme(unittest.TestCase):
     @print_test
     def test_download_file_success(self):
-        url = "file://" + os.path.join(HTML_FN, "cnn_article.html")
+
+        url = "file://" + os.path.join(HTML_FN, "aftonbladet.html")
         article = Article(url=url)
         article.download()
         self.assertEqual(article.download_state, ArticleDownloadState.SUCCESS)
@@ -356,7 +354,8 @@ class ContentExtractorTestCase(unittest.TestCase):
 
     def _get_title(self, html):
         doc = self.parser.fromstring(html)
-        return self.extractor.get_title(doc)
+        json= self.extractor.getjson(html)
+        return self.extractor.get_title(doc, json)
 
     def test_get_title_basic(self):
         html = '<title>Test title</title>'
@@ -638,9 +637,8 @@ class ConfigBuildTestCase(unittest.TestCase):
     @print_test
     def test_article_default_params(self):
 
-        a = Article(url='http://www.cnn.com/2013/11/27/'
-                        'travel/weather-thanksgiving/index.html')
-        self.assertEqual('en', a.config.language)
+        a = Article(url='https://www.aftonbladet.se/sportbladet/fotboll/a/nW8GKd/allsvenskan-mohamed-buya-turay-klar-for-malmo-ff')
+        self.assertEqual('sv', a.config.language)
         self.assertTrue(a.config.memoize_articles)
         self.assertTrue(a.config.use_meta_language)
 

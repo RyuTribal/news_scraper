@@ -42,6 +42,7 @@ def load_stopwords(language):
 
 
 def summarize(url='', title='', text='', max_sents=5):
+    maxDiff = None
     if not text or not title or max_sents <= 0:
         return []
 
