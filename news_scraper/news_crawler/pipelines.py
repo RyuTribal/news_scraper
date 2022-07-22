@@ -19,7 +19,7 @@ class NewsCrawlerPipeline:
         #self.file = open('articles.jl', 'w+')
         config = configparser.ConfigParser()
         config.read('elastic.ini')
-        self.elastic = ElasticDB(username=config['ELASTIC']['username'], password=config['ELASTIC']['password'], sha_cert=config['ELASTIC']['cert'], url=config['ELASTIC']['url'])
+        self.elastic = ElasticDB(username='elastic', password='816WhaGh2d4iNqbw6Moq', url="http://localhost:9200")
 
     def close_spider(self, spider):
         #self.file.close()
