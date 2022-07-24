@@ -45,7 +45,7 @@ class MenuSpider(CrawlSpider):
         "admin",
     ]
 
-    def __init__(self, url="", **kwargs):
+    def __init__(self, url="", pg_creds=None, es_creds=None, **kwargs):
         domain_url = get_domain(url)
         url_scheme = get_scheme(url)
         self.allowed_domains = [domain_url]
@@ -59,9 +59,8 @@ class MenuSpider(CrawlSpider):
             ),
         )
         dispatcher.connect(self.spider_closed, signals.spider_closed)
-        self.cache_db = CacheSQL(
-            host="localhost", user="root", password="admin", database="crawler"
-        )
+        self.cache_db = CacheSQL(**pg_creds)
+        self.es_creds = es_creds
         super().__init__(**kwargs)
 
     def check_cache(self, links):

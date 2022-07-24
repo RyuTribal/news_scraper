@@ -15,19 +15,18 @@ from ...db import CacheSQL
 
 
 class SitemapNewsSpider(SitemapSpider):
-    name = 'sitemap_spider'
+    name = "sitemap_spider"
     sitemap_urls = None
     allowed_domains = None
 
-    def __init__(self, url='', **kwargs):
+    def __init__(self, url="", pg_creds=None, es_creds=None, **kwargs):
         domain_url = get_domain(url)
         url_scheme = get_scheme(url)
-        self.sitemap_urls = [url_scheme +"://"+ domain_url + '/robots.txt']
+        self.sitemap_urls = [url_scheme + "://" + domain_url + "/robots.txt"]
         self.allowed_domains = [domain_url]
         dispatcher.connect(self.spider_closed, signals.spider_closed)
-        self.cache_db = CacheSQL(
-            host="localhost", user="root", password="admin", database="crawler"
-        )
+        self.cache_db = CacheSQL(**pg_creds)
+        self.es_creds = es_creds
 
         super().__init__(**kwargs)
 
@@ -40,7 +39,7 @@ class SitemapNewsSpider(SitemapSpider):
     def parse(self, response):
         if valid_url(response.url):
             item = NewsCrawlerItem()
-            item['url'] = response.url
+            item["url"] = response.url
             self.cache_db.add_url(response.url)
             yield item
         else:
@@ -49,7 +48,6 @@ class SitemapNewsSpider(SitemapSpider):
             )
             for link in links:
                 yield response.follow(link, callback=self.parse)
-
 
     def spider_closed(self):
         self.cache_db.close_connection()

@@ -20,16 +20,20 @@ class ElasticDB(object):
     """
 
     def __init__(
-        self, username="", password="", sha_cert="", url="", index="scraped_news"
+        self, cloud_id=None, api_key=None, username="", password="", scheme="http", host="localhost", port = 9200, index="news_articles"
     ):
 
-        self.client = Elasticsearch(
-            url,
-            connection_class=RequestsHttpConnection,
-            http_auth=(username, password),
-            use_ssl=True,
-            verify_certs=False,
-        )
+        if cloud_id:
+            self.client = Elasticsearch(
+                cloud_id= cloud_id,
+                api_key= api_key,
+            )
+        else:
+            self.client = Elasticsearch(
+                [host],
+                http_auth=(username, password),
+                scheme=scheme, port=443,
+            )
 
         self.index = index
 
@@ -47,9 +51,9 @@ class CacheSQL(object):
     """
     Object abstracts connection details for postgresql
     """
-    def __init__(self, host='localhost', database='crawler', user="root", password='admin'):
+    def __init__(self, host='localhost', database='crawler', user="root", password='admin', port = 5432):
         self.conn =  psycopg2.connect(
-            host=host, database=database, user=user, password=password
+            host=host, port=port, database=database, user=user, password=password
         )
         if not self.table_exists("url_cache"):
             self.create_cache_table()
@@ -69,7 +73,6 @@ class CacheSQL(object):
                     )
 
                     TABLESPACE pg_default""")
-        cur.execute("ALTER TABLE IF EXISTS public.url_cache OWNER to root")
         cur.execute("COMMENT ON TABLE public.url_cache IS 'For storing url''s that have been crawled'")
         self.conn.commit()
         cur.close()
