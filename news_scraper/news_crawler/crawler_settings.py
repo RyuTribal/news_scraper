@@ -16,7 +16,7 @@ ITEM_PIPELINES = {
     "news_scraper.news_crawler.pipelines.NewsCrawlerPipeline": 100,
 }
 
-USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+# USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'news_crawler (+http://www.yourdomain.com)'
@@ -52,6 +52,11 @@ ROBOTSTXT_OBEY = True
 # SPIDER_MIDDLEWARES = {
 #    'news_crawler.middlewares.NewsCrawlerSpiderMiddleware': 543,
 # }
+
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,
+}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html

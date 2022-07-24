@@ -79,20 +79,23 @@ class CacheSQL(object):
 
     def table_exists(self, table_str):
         exists = False
+        cur = self.conn.cursor()
         try:
-            cur = self.conn.cursor()
             cur.execute("select exists(select relname from pg_class where relname='" + table_str + "')")
             exists = cur.fetchone()[0]
             print(exists)
-            cur.close()
         except psycopg2.Error as e:
             print(e)
+        cur.close()
         return exists
 
     def add_url(self, url):
         cur = self.conn.cursor()
-        cur.execute("insert into url_cache(url) values(%s)", [url])
-        self.conn.commit()
+        try:
+            cur.execute("insert into url_cache(url) values(%s)", [url])
+            self.conn.commit()
+        except:
+            pass
         cur.close()
 
     
