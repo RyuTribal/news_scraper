@@ -10,7 +10,7 @@ import json
 from ..article import Article
 import os
 from ..db import ElasticDB
-
+from elasticsearch.exceptions import RequestError
 
 class NewsCrawlerPipeline:
     file = None
@@ -48,7 +48,14 @@ class NewsCrawlerPipeline:
             + "\n"
         )
         # self.file.write(final_data)
-        self.elastic.add_document(final_data)
+        try:
+            self.elastic.add_document(final_data)
+        except RequestError:
+            if RequestError.error == 'mapper_parsing_exception':
+                formatted_date = format_date(final_data['publish_date'])
+                final_data['publish_date'] = formatted_date
+                self.elastic.add_document(final_data)
+
         return item
 
 
@@ -66,3 +73,20 @@ def serialize_sets(obj):
         return str(obj)
 
     return obj
+
+
+def format_date(time):
+    date = time
+    date_split = date.split('-')
+    year = date_split[0]
+    month = date_split[1]
+    day = date_split[2]
+
+    time_split = date.split(' ')[1].split(':')
+    hour = time_split[0]
+    minute = time_split[1]
+    seconds = time_split[2]
+
+    final_string = year+month+day+'T'+hour+minute+seconds+'.0000'
+
+    return final_string
