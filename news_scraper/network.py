@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 """
 All code involving requests and responses over the http network
 must be abstracted in this file.

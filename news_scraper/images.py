@@ -172,7 +172,6 @@ def fetch_image_dimension(url, useragent, referer=None, retries=1):
 
 
 class Scraper:
-
     def __init__(self, article):
         self.url = article.url
         self.imgs = article.imgs

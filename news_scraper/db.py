@@ -10,7 +10,7 @@ __title__ = "news_scraper"
 __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
 __copyright__ = "Copyright 2022, EIOP"
 
-from elasticsearch import Elasticsearch, RequestsHttpConnection, ConflictError
+from elasticsearch import Elasticsearch, ConflictError
 import psycopg2
 
 
@@ -58,9 +58,6 @@ class CacheSQL(object):
         if not self.table_exists("url_cache"):
             self.create_cache_table()
 
-
-
-            
     def create_cache_table(self):
         cur = self.conn.cursor()
         cur.execute("""CREATE TABLE IF NOT EXISTS public.url_cache
