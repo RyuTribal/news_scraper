@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 __title__ = "news_scraper"
 __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
@@ -8,7 +9,6 @@ import logging
 import copy
 import os
 import glob
-import spacy
 from urllib.parse import urlparse
 
 import requests

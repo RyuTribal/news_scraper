@@ -14,8 +14,7 @@ __copyright__ = "Copyright 2022, EIOP"
 import logging
 
 from .parsers import Parser
-from .text import (StopWords, StopWordsArabic, StopWordsChinese,
-                   StopWordsKorean, StopWordsHindi, StopWordsJapanese, StopWordsThai)
+from .text import (StopWords)
 from .version import __version__
 
 log = logging.getLogger(__name__)
@@ -105,20 +104,6 @@ class Configuration(object):
 
     @staticmethod
     def get_stopwords_class(language):
-        if language == "ko":
-            return StopWordsKorean
-        elif language == "hi":
-            return StopWordsHindi
-        elif language == "zh":
-            return StopWordsChinese
-         # Persian and Arabic Share an alphabet
-        # There is a persian parser https://github.com/sobhe/hazm, but nltk is likely sufficient
-        elif language == 'ar' or language == 'fa':
-            return StopWordsArabic
-        elif language == 'ja':
-            return StopWordsJapanese
-        elif language == 'th':
-            return StopWordsThai
         return StopWords
 
     @staticmethod

@@ -9,7 +9,6 @@ __title__ = "news_scraper"
 __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
 __copyright__ = "Copyright 2022, EIOP"
 
-
 import logging
 import re
 
