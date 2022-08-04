@@ -11,9 +11,6 @@ from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 from scrapy.http import FormRequest
 from ...urls import valid_url, get_domain, get_scheme
 from ..items import NewsCrawlerItem
-from scrapy import signals
-from pydispatch import dispatcher
-from ...db import CacheSQL
 
 
 class MenuSpider(CrawlSpider):
@@ -58,22 +55,18 @@ class MenuSpider(CrawlSpider):
                 follow=False,
             ),
         )
-        dispatcher.connect(self.spider_closed, signals.spider_closed)
-        self.cache_db = CacheSQL(**pg_creds)
+        self.cache_creds = pg_creds
         self.es_creds = es_creds
         super().__init__(**kwargs)
 
     def check_cache(self, links):
         for link in links:
-            if self.cache_db.check_url_exists(link.url):
-                continue
             yield link
 
     def parse_obj(self, response):
         if valid_url(response.url):
             item = NewsCrawlerItem()
             item["url"] = response.url
-            self.cache_db.add_url(response.url)
             yield item
         else:
 
@@ -82,6 +75,3 @@ class MenuSpider(CrawlSpider):
             )
             for link in links:
                 yield response.follow(link, callback=self.parse_obj)
-
-    def spider_closed(self):
-        self.cache_db.close_connection()

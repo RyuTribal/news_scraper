@@ -11,13 +11,14 @@ from ..article import Article
 import os
 from ..db import ElasticDB
 from elasticsearch.exceptions import RequestError
+from ..db import CacheSQL
 
 class NewsCrawlerPipeline:
     file = None
 
     def open_spider(self, spider):
         # self.file = open('articles.jl', 'w+')
-        if 'username' in spider.es_creds and 'password' in spider.es_creds:
+        if hasattr(spider, 'es_creds') and 'username' in spider.es_creds and 'password' in spider.es_creds:
             self.elastic = ElasticDB(
                 username=spider.es_creds['username'],
                 password=spider.es_creds['password'],
@@ -31,9 +32,13 @@ class NewsCrawlerPipeline:
                 cloud_id = spider.es_creds['host'],
                 api_key = spider.es_creds['api_key']
             )
+        
+        if hasattr(spider, 'cache_creds'):
+            self.cache_db = CacheSQL(**spider.cache_creds)
 
     def close_spider(self, spider):
         # self.file.close()
+        self.cache_db.close_connection()
         pass
 
     def process_item(self, item, spider):
@@ -55,7 +60,8 @@ class NewsCrawlerPipeline:
                 formatted_date = format_date(final_data['publish_date'])
                 final_data['publish_date'] = formatted_date
                 self.elastic.add_document(final_data)
-
+        if hasattr(self, 'cache_db'):
+            self.cache_db.add_url(url)
         return item
 
 
