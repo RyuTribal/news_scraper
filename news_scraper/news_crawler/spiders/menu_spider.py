@@ -42,7 +42,7 @@ class MenuSpider(CrawlSpider):
         "admin",
     ]
 
-    def __init__(self, url="", pg_creds=None, es_creds=None, **kwargs):
+    def __init__(self, url="", cache=None, es_db=None, **kwargs):
         domain_url = get_domain(url)
         url_scheme = get_scheme(url)
         self.allowed_domains = [domain_url]
@@ -51,16 +51,19 @@ class MenuSpider(CrawlSpider):
             Rule(
                 LxmlLinkExtractor(allow=self.allowed_domains),
                 callback="parse_obj",
-                process_links="check_cache",
                 follow=False,
+                process_links='filter_links'
             ),
         )
-        self.cache_creds = pg_creds
-        self.es_creds = es_creds
+        self.cache = cache 
+        self.es_db = es_db
         super().__init__(**kwargs)
 
-    def check_cache(self, links):
+    def filter_links(self, links):
+        # Removes URLs that have already been scraped in previous crawling sessions
         for link in links:
+            if self.cache.check_url_exists(link):
+                continue
             yield link
 
     def parse_obj(self, response):

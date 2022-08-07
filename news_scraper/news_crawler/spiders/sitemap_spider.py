@@ -16,18 +16,21 @@ class SitemapNewsSpider(SitemapSpider):
     sitemap_urls = None
     allowed_domains = None
 
-    def __init__(self, url="", pg_creds=None, es_creds=None, **kwargs):
+    def __init__(self, url="", cache=None, es_db=None, **kwargs):
         domain_url = get_domain(url)
         url_scheme = get_scheme(url)
         self.sitemap_urls = [url_scheme + "://" + domain_url + "/robots.txt"]
         self.allowed_domains = [domain_url]
-        self.cache_creds = pg_creds
-        self.es_creds = es_creds
+        self.cache = cache 
+        self.es_db = es_db
 
         super().__init__(**kwargs)
 
-    def check_cache(self, links):
+    def filter_links(self, links):
+        # Removes URLs that have already been scraped in previous crawling sessions
         for link in links:
+            if self.cache.check_url_exists(link):
+                continue
             yield link
 
     def parse(self, response):
@@ -36,7 +39,7 @@ class SitemapNewsSpider(SitemapSpider):
             item["url"] = response.url
             yield item
         else:
-            links = self.check_cache(
+            links = self.filter_links(
                 LxmlLinkExtractor(allow=self.allowed_domains).extract_links(response)
             )
             for link in links:

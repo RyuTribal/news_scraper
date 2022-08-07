@@ -29,7 +29,7 @@ with codecs.open('README.rst', 'r', 'utf-8') as f:
 
 setup(
     name='news_scraper',
-    version='0.1.0',
+    version='0.4.7',
     description='Based on newspaper by Lucas Ou-Yang. Scrapes news and extracts information from the articles',
     long_description=readme,
     author='Ivan Sedelkin, Mohammed Shakir, Suad Huseynli',
