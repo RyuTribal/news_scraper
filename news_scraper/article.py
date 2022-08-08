@@ -619,6 +619,5 @@ class Article(object):
             "source_url": self.source_url,
             "url" : self.url,
             "premium" : not self.isAccessible,
-            "category": self.sportCategory,
-            "body": self.text
+            "category": self.sportCategory
         }
