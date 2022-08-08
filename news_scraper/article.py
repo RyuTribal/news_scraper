@@ -618,5 +618,6 @@ class Article(object):
             "meta_data": self.meta_data,
             "source_url": self.source_url,
             "url" : self.url,
-            "premium" : not self.isAccessible
+            "premium" : not self.isAccessible,
+            "category": self.sportCategory
         }

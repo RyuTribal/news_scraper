@@ -11,29 +11,22 @@ from ..article import Article
 import os
 from ..db import ElasticDB
 from elasticsearch.exceptions import RequestError
+from ..db import CacheSQL
 
 class NewsCrawlerPipeline:
     file = None
 
     def open_spider(self, spider):
         # self.file = open('articles.jl', 'w+')
-        if 'username' in spider.es_creds and 'password' in spider.es_creds:
-            self.elastic = ElasticDB(
-                username=spider.es_creds['username'],
-                password=spider.es_creds['password'],
-                scheme=spider.es_creds['scheme'],
-                host=spider.es_creds['host'],
-                port=spider.es_creds['port'],
-                index="news_articles",
-            )
-        else:
-            self.elastic = ElasticDB(
-                cloud_id = spider.es_creds['host'],
-                api_key = spider.es_creds['api_key']
-            )
+        if hasattr(spider, 'es_db'):
+            spider.es_db.connect()
+        
+        if hasattr(spider, 'cache'):
+            spider.cache.connect()
 
     def close_spider(self, spider):
         # self.file.close()
+        spider.cache.close_connection()
         pass
 
     def process_item(self, item, spider):
@@ -49,13 +42,14 @@ class NewsCrawlerPipeline:
         )
         # self.file.write(final_data)
         try:
-            self.elastic.add_document(final_data)
+            spider.es_db.add_document(final_data)
         except RequestError:
             if RequestError.error == 'mapper_parsing_exception':
                 formatted_date = format_date(final_data['publish_date'])
                 final_data['publish_date'] = formatted_date
-                self.elastic.add_document(final_data)
-
+                spider.es_db.add_document(final_data)
+        if hasattr(spider, 'cache'):
+            spider.cache.add_url(url)
         return item
 
 
