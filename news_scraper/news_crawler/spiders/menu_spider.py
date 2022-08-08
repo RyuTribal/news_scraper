@@ -11,9 +11,6 @@ from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 from scrapy.http import FormRequest
 from ...urls import valid_url, get_domain, get_scheme
 from ..items import NewsCrawlerItem
-from scrapy import signals
-from pydispatch import dispatcher
-from ...db import CacheSQL
 
 
 class MenuSpider(CrawlSpider):
@@ -45,7 +42,7 @@ class MenuSpider(CrawlSpider):
         "admin",
     ]
 
-    def __init__(self, url="", pg_creds=None, es_creds=None, **kwargs):
+    def __init__(self, url="", cache=None, es_db=None, **kwargs):
         domain_url = get_domain(url)
         url_scheme = get_scheme(url)
         self.allowed_domains = [domain_url]
@@ -54,18 +51,18 @@ class MenuSpider(CrawlSpider):
             Rule(
                 LxmlLinkExtractor(allow=self.allowed_domains),
                 callback="parse_obj",
-                process_links="check_cache",
                 follow=False,
+                process_links='filter_links'
             ),
         )
-        dispatcher.connect(self.spider_closed, signals.spider_closed)
-        self.cache_db = CacheSQL(**pg_creds)
-        self.es_creds = es_creds
+        self.cache = cache 
+        self.es_db = es_db
         super().__init__(**kwargs)
 
-    def check_cache(self, links):
+    def filter_links(self, links):
+        # Removes URLs that have already been scraped in previous crawling sessions
         for link in links:
-            if self.cache_db.check_url_exists(link.url):
+            if self.cache.check_url_exists(link):
                 continue
             yield link
 
@@ -73,7 +70,6 @@ class MenuSpider(CrawlSpider):
         if valid_url(response.url):
             item = NewsCrawlerItem()
             item["url"] = response.url
-            self.cache_db.add_url(response.url)
             yield item
         else:
 
@@ -82,6 +78,3 @@ class MenuSpider(CrawlSpider):
             )
             for link in links:
                 yield response.follow(link, callback=self.parse_obj)
-
-    def spider_closed(self):
-        self.cache_db.close_connection()

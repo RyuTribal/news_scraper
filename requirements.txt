@@ -14,3 +14,4 @@ spacy>=3.3.1
 elasticsearch>=7.0.0,<8.0.0
 psycopg2-binary>=2.9.3
 scrapy-user-agents>=0.1.1
+redis[hiredis]
