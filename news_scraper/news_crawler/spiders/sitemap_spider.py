@@ -26,21 +26,12 @@ class SitemapNewsSpider(SitemapSpider):
 
         super().__init__(**kwargs)
 
-    def filter_links(self, links):
-        # Removes URLs that have already been scraped in previous crawling sessions
-        for link in links:
-            if self.cache.check_url_exists(link):
-                continue
-            yield link
-
     def parse(self, response):
         if valid_url(response.url):
             item = NewsCrawlerItem()
             item["url"] = response.url
             yield item
         else:
-            links = self.filter_links(
-                LxmlLinkExtractor(allow=self.allowed_domains).extract_links(response)
-            )
+            links = LxmlLinkExtractor(allow=self.allowed_domains).extract_links(response)
             for link in links:
                 yield response.follow(link, callback=self.parse)

@@ -56,6 +56,7 @@ ROBOTSTXT_OBEY = True
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,
+    'news_scraper.news_crawler.middlewares.ByPassUrlMiddleware': 390,
 }
 
 # Enable or disable downloader middlewares

@@ -52,19 +52,11 @@ class MenuSpider(CrawlSpider):
                 LxmlLinkExtractor(allow=self.allowed_domains),
                 callback="parse_obj",
                 follow=False,
-                process_links='filter_links'
             ),
         )
         self.cache = cache 
         self.es_db = es_db
         super().__init__(**kwargs)
-
-    def filter_links(self, links):
-        # Removes URLs that have already been scraped in previous crawling sessions
-        for link in links:
-            if self.cache.check_url_exists(link):
-                continue
-            yield link
 
     def parse_obj(self, response):
         if valid_url(response.url):
@@ -73,8 +65,7 @@ class MenuSpider(CrawlSpider):
             yield item
         else:
 
-            links = self.check_cache(
-                LxmlLinkExtractor(allow=self.allowed_domains).extract_links(response)
-            )
+            links = LxmlLinkExtractor(allow=self.allowed_domains).extract_links(response)
+            
             for link in links:
                 yield response.follow(link, callback=self.parse_obj)
