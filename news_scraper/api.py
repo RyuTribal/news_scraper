@@ -14,13 +14,13 @@ from .source import Source
 from .utils import extend_config, print_available_languages
 
 
-def build(url='', dry=False, config=None, es = None, pg = None, **kwargs) -> Source:
+def build(url='', dry=False, config=None, es_db = None, cache = None, **kwargs) -> Source:
     # Returns source object without downloading or parsing
     # the articles
     config = config or Configuration()
     config = extend_config(config, kwargs)
     url = url or ''
-    s = Source(url, config=config, es = es, pg = pg)
+    s = Source(url, config=config, es_db = es_db, cache = cache)
     if not dry:
         s.build()
     return s

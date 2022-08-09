@@ -60,7 +60,7 @@ class Source(object):
     brand      =  'cnn'
     """
 
-    def __init__(self, url, config=None, pg = None, es = None, **kwargs):
+    def __init__(self, url, config=None, cache = None, es_db = None, **kwargs):
         """The config object for this source will be passed into all of this
         source's children articles unless specified otherwise or re-set.
         """
@@ -93,8 +93,8 @@ class Source(object):
         self.is_parsed = False
         self.is_downloaded = False
 
-        self.pg_creds = pg
-        self.es_creds = es
+        self.cache = cache
+        self.es_db = es_db
 
     def build(self):
         """Encapsulates download and basic parsing with lxml. May be a
@@ -106,9 +106,9 @@ class Source(object):
         
 
         if len(urls.get_sitemap(self.url)) > 0:
-            process.crawl(SitemapNewsSpider, url=self.url, pg_creds = self.pg_creds, es_creds = self.es_creds)
+            process.crawl(SitemapNewsSpider, url=self.url, cache = self.cache, es_db = self.es_db)
         else:
-            process.crawl(MenuSpider, url=self.url, pg_creds = self.pg_creds, es_creds = self.es_creds)
+            process.crawl(MenuSpider, url=self.url, cache = self.cache, es_db = self.es_db)
         
         process.start()
 
