@@ -57,10 +57,10 @@ ROTATED_PROXY_ENABLED = True
 
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    'news_scraper.news_crawler.middlewares.ByPassUrlMiddleware': 390,
     'scrapy_useragents.downloadermiddlewares.useragents.UserAgentsMiddleware': 500,
     'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
     'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
-    'news_scraper.news_crawler.middlewares.MyMiddleware': 543,
 }
 
 USER_AGENTS = [
