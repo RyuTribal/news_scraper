@@ -8,7 +8,6 @@
 #     http://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 BOT_NAME = "news_crawler"
-
 SPIDER_MODULES = ["news_scraper.news_crawler.spiders"]
 NEWSPIDER_MODULE = "news_scraper.news_crawler.spiders"
 DEPTH_LIMIT = 4
