@@ -56,9 +56,32 @@ class ElasticDB(object):
                 scheme=self.creds["scheme"],
                 port=443,
             )
+    
+    def validate_date(self, date):
+        allowedDates=[
+            "%Y-%m-%d %H:%M:%S.%f%Z",
+            "%Y-%m-%d",
+            "%Y%m%d",
+            "%Y%m%d %H%M%S.%fZ",
+            "%Y%m%d %H%M%S%Z",
+            "%Y-%m-%d %H",
+            "%Y-%m-%d %H:%M",
+            "%Y-%m-%d %H:%M:%S",
+            "%Y-%m-%d %H:%M:%S.%f",
+            "%Y-%m-%d %H:%M:%S%Z"
+        ]
+
+        for format in allowedDates:
+            try: 
+                return datetime.strptime(date, format)
+            except:
+                pass
+    
+        return datetime.now()
 
     def add_document(self, doc):
         try:
+            doc['publish_date'] = self.validate_date(doc['publish_date'])
             self.client.index(index=self.creds["index"], document=doc)
             return True
         except ConflictError:
