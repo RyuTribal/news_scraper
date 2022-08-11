@@ -6,9 +6,7 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-from .spiders.utils.detectors import get_domain
-import time
-import uuid
+import urllib
 
 class NewsCrawlerPipeline:
     file = None
@@ -27,7 +25,7 @@ class NewsCrawlerPipeline:
     def process_item(self, item, spider):
         url = ItemAdapter(item).get("url")
         html_bytes = ItemAdapter(item).get("html")
-        name = str(get_domain(url)) + str(time.time()) + str(uuid.uuid4())+'.html'
+        name = urllib.parse.quote(url, safe='')+'.html'
         if hasattr(spider, "blob_storage"):
             spider.blob_storage.upload_file(html_bytes, name)
         return item
