@@ -66,5 +66,3 @@ class ElasticDB(object):
             print(ConflictError.info)
             print("\n")
             return False
-
-

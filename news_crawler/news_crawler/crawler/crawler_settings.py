@@ -64,17 +64,237 @@ DOWNLOADER_MIDDLEWARES = {
 }
 
 USER_AGENTS = [
+    ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/103.0.0.0 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'CriOS/103.0.5060.63 '
+     'Mobile/15E148 '
+     'Safari/604.1'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/102.0.5005.63 '
+     'Safari/537.36'),
+
     ('Mozilla/5.0 (X11; Linux x86_64) '
      'AppleWebKit/537.36 (KHTML, like Gecko) '
-     'Chrome/57.0.2987.110 '
-     'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Linux x86_64) '
+     'Chrome/72.0.3626.121 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
      'AppleWebKit/537.36 (KHTML, like Gecko) '
-     'Chrome/61.0.3163.79 '
-     'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:55.0) '
+     'Chrome/103.0.5060.114 '
+     'Safari/537.36 '
+     'Edg/103.0.1264.62'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) '
      'Gecko/20100101 '
-     'Firefox/55.0')  # firefox
+     'Firefox/102.0'),
+
+    ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0) '
+     'Gecko/20100101 '
+     'Firefox/102.0'),
+
+    ('Mozilla/5.0 (Linux; Android 9; BDL8051C Build/BDL3552T; wv) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Version/4.0 '
+     'Chrome/66.0.3359.158 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (Linux; Android 8.1.0; jhs561 Build/GIADA.eng.zc.20200922.153858; wv) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Version/4.0 '
+     'Chrome/81.0.4044.138 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Version/15.5 '
+     'Mobile/15E148 '
+     'Safari/604.1'),
+
+    ('Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Mobile/15E148'),
+
+    ('Mozilla/5.0 (iPhone; CPU iPhone OS 14_8_1 like Mac OS X) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Mobile/15E148'),
+
+    ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Version/15.5 '
+     'Safari/605.1.15'),
+
+    ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0) '
+     'Gecko/20100101 '
+     'Firefox/102.0'),
+
+    ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Version/13.1.2 '
+     'Safari/605.1.15'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Teams/1.5.00.17656 '
+     'Chrome/85.0.4183.121 '
+     'Electron/10.4.7 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (iPhone; CPU iPhone OS 15_6 like Mac OS X) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Version/15.6 '
+     'Mobile/15E148 '
+     'Safari/604.1'),
+
+    ('Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Version/15.4 '
+     'Mobile/15E148 '
+     'Safari/604.1'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/100.0.4896.127 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/101.0.4951.67 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/101.0.4951.54 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/103.0.5060.134 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/86.0.4240.198 '
+     'Safari/E7FBAF'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/103.0.0.0 '
+     'Safari/E7FBAF'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/103.0.5060.114 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (X11; Linux x86_64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/44.0.2403.157 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/102.0.0.0 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/85.0.4183.38 '
+     'Safari/537.36'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/103.0.5060.134 '
+     'Safari/537.36 '
+     'Edg/103.0.1264.71'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/103.0.5060.114 '
+     'Safari/537.36 '
+     'Edg/103.0.1264.49'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/101.0.4951.64 '
+     'Safari/537.36 '
+     'Edg/101.0.1210.53'),
+
+    ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Version/15.5 '
+     'Safari/605.1.15'),
+
+    ('Mozilla/5.0 (Windows NT 6.1; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/79.0.3945.88 '
+     'Safari/537.36 '
+     'Keeper/1616028983'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/103.0.5060.53 '
+     'Safari/537.36 '
+     'Edg/103.0.1264.37'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) '
+     'Gecko/20100101 '
+     'Firefox/103.0'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/103.0.5060.66 '
+     'Safari/537.36 '
+     'Edg/103.0.1264.44'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/103.0.5060.134 '
+     'Safari/537.36 '
+     'Edg/103.0.1264.77'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/102.0.5005.124 '
+     'Safari/537.36 '
+     'Edg/102.0.1245.44'),
+
+    ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Version/15.4 '
+     'Safari/605.1.15'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) '
+     'Gecko/20100101 '
+     'Firefox/98.0'),
+
+    ('Mozilla/5.0 (Windows NT 10.0; Win64; x64; WebView/3.0) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/70.0.3538.102 '
+     'Safari/537.36 '
+     'Edge/18.19044'),
+
+    ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Version/14.1.2 '
+     'Safari/605.1.15'),
+
+    ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Version/15.3 '
+     'Safari/605.1.15'),
+
+    ('Mozilla/5.0 (iPhone; CPU iPhone OS 14_8_1 like Mac OS X) '
+     'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+     'Version/14.1.2 '
+     'Mobile/15E148 '
+     'Safari/604.1')
 ]
 
 ROTATING_PROXY_LIST = [
