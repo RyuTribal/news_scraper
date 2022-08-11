@@ -28,4 +28,6 @@ class NewsCrawlerPipeline:
         name = urllib.parse.quote(url, safe='')+'.html'
         if hasattr(spider, "blob_storage"):
             spider.blob_storage.upload_file(html_bytes, name)
+        if hasattr(spider, 'cache'):
+            spider.cache.add_url(url)
         return item
