@@ -16,7 +16,7 @@ except ImportError:
 
 
 packages = [
-    'news_scraper',
+    'news_crawler',
 ]
 
 with open('requirements.txt') as f:
@@ -28,9 +28,9 @@ with codecs.open('README.rst', 'r', 'utf-8') as f:
 
 
 setup(
-    name='news_scraper',
+    name='news_crawler',
     version='0.4.7',
-    description='Based on newspaper by Lucas Ou-Yang. Scrapes news and extracts information from the articles',
+    description='Crawls and detects articles',
     long_description=readme,
     author='Ivan Sedelkin, Mohammed Shakir, Suad Huseynli',
     author_email='ivan.sedelkin9@gmail.com, mohammedshakir010528@gmail.com, suadreal@gmail.com',

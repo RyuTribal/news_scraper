@@ -5,8 +5,5 @@ python:
  - "3.7"
 install:
  - pip install -r requirements.txt coverage coveralls
- - python download_corpora.py
-script:
-  - coverage run --source news_scraper tests/unit_tests.py
 after_success:
   coveralls
