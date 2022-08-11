@@ -37,3 +37,7 @@ class ByPassUrlMiddleware(object):
             "Skipping Request for url: %s with exception: %s", request.url, exception
         )
         return None
+    
+    def proccess_response(self, response, spider):
+        spider.logger.info('Proxy: %s' % response.meta.get("proxy"))
+        return response
