@@ -10,7 +10,7 @@ __copyright__ = "Copyright 2022, EIOP"
 
 import re
 import math
-from os import path
+from os import path, environ
 
 from collections import Counter
 
@@ -158,7 +158,12 @@ def split_sentences(text):
     """Split a large string into sentences
     """
     import nltk.data
-    tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+    tokenizer = None
+    if "NLTK_DATA" in environ:
+        tokenizer = nltk.data.load(environ['NLTK_DATA'])
+
+    else:
+        tokenizer = nltk.data.load('tokenizers/punkt/swedish.pickle')
 
     sentences = tokenizer.tokenize(text)
     sentences = [x.replace('\n', '') for x in sentences if len(x) > 10]
