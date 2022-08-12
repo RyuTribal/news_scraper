@@ -26,6 +26,7 @@ from .outputformatters import OutputFormatter
 from .utils import (URLHelper, RawHelper, extend_config,
                     get_available_languages, extract_meta_refresh)
 from .videos.extractors import VideoExtractor
+from datetime import datetime
 
 log = logging.getLogger(__name__)
 
@@ -593,20 +594,19 @@ class Article(object):
             raise ArticleException('You must `parse()` an article first!')
 
     def get_dict(self):
-        return {
-            "title": self.title,
-            "top_img": self.top_img,
-            "images": self.imgs,
-            "movies" : self.movies,
-            "keywords": self.keywords,
-            "meta_keywords": self.meta_keywords,
-            "tags": self.tags,
-            "authors": self.authors,
-            "publish_date": self.publish_date,
-            "summary": self.summary,
-            "meta_data": self.meta_data,
-            "source_url": self.source_url,
-            "url" : self.url,
-            "premium" : not self.isAccessible,
-            "category": self.sportCategory
-        }
+        return dict(
+            title = self.title,
+            top_img= self.top_img,
+            images= self.imgs,
+            movies = self.movies,
+            keywords= self.keywords + self.meta_keywords,
+            tags= self.tags,
+            authors= self.authors,
+            publish_date= self.publish_date,
+            summary= self.summary,
+            source_url= self.source_url,
+            meta_data = self.meta_data,
+            url = self.url,
+            premium = not self.isAccessible,
+            category= self.sportCategory
+        )

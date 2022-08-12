@@ -12,14 +12,15 @@ __copyright__ = "Copyright 2022, EIOP"
 
 
 from elasticsearch import Elasticsearch, ConflictError
-from datetime import datetime
-import pandas as pd
+import json
+from datetime import datetime, time, date
 
 
 class ElasticDB(object):
     """
     Object abstracts connection details for elasticsearch
     """
+
 
     def __init__(
         self,
@@ -56,36 +57,21 @@ class ElasticDB(object):
                 scheme=self.creds["scheme"],
                 port=443,
             )
-    
-    def validate_date(self, date):
-        allowedDates=[
-            "%Y-%m-%d %H:%M:%S.%f%Z",
-            "%Y-%m-%d",
-            "%Y%m%d",
-            "%Y%m%d %H%M%S.%fZ",
-            "%Y%m%d %H%M%S%Z",
-            "%Y-%m-%d %H",
-            "%Y-%m-%d %H:%M",
-            "%Y-%m-%d %H:%M:%S",
-            "%Y-%m-%d %H:%M:%S.%f",
-            "%Y-%m-%d %H:%M:%S%Z"
-        ]
 
-        for format in allowedDates:
-            try: 
-                return datetime.strptime(date, format)
-            except:
-                pass
-    
-        return datetime.now()
+    def add_document(self, **kwargs):
+        final_data = json.dumps(kwargs, indent=2, ensure_ascii=False, cls=CustomEncoder)
+        self.client.index(index=self.creds["index"], body=final_data)
+        return True
 
-    def add_document(self, doc):
-        try:
-            doc['publish_date'] = self.validate_date(doc['publish_date'])
-            self.client.index(index=self.creds["index"], document=doc)
-            return True
-        except ConflictError:
-            print("\n")
-            print(ConflictError.info)
-            print("\n")
-            return False
+
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%dT%H:%M:%S%z')
+        if isinstance(obj, time):
+            return obj.strftime('%H:%M:%S')
+        if hasattr(obj, 'to_json'):
+            return obj.to_json()
+        if isinstance(obj, set):
+            return list(obj)
+        return super(CustomEncoder, self).default(obj)

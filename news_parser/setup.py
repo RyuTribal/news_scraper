@@ -29,7 +29,7 @@ with codecs.open('README.rst', 'r', 'utf-8') as f:
 
 setup(
     name='news_parser',
-    version='0.4.7',
+    version='0.5.0',
     description='Extracts data from an article file',
     long_description=readme,
     author='Ivan Sedelkin, Mohammed Shakir, Suad Huseynli',
