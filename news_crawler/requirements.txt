@@ -4,3 +4,4 @@ scrapy-useragents>=0.0.1
 scrapy-rotating-proxies>=0.6.2
 google
 google-cloud-storage
+redis
