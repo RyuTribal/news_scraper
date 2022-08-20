@@ -234,9 +234,8 @@ class ContentExtractor(object):
 
         # exception dagen.se
         # They store it as class name in body
-
-        if get_domain(url) == "dagen.se":
-            body_tag = self.parser.getElementsByTag(doc, tag='body', attr="class")
+        if get_domain(url) == "www.dagen.se":
+            body_tag = self.parser.getElementsByTag(doc, tag='body')
             attr = self.parser.getAttribute(body_tag[0], "class")
 
             if body_tag:
@@ -246,45 +245,53 @@ class ContentExtractor(object):
         # exception metromode.se
         # They store it as class name in html
 
+        #can't get html, not important website for now
+        """
         if get_domain(url) == "metromode.se":
-            html_tag = self.parser.getElementsByTag(doc, tag='html', attr="class")
+            html_tag = self.parser.getElementsByTag(doc, tag='html')
             attr = self.parser.getAttribute(html_tag[0], "class")
-
+            
             if html_tag:
                 if attr:
                     return attr.split(" ")[1]
+        """
 
         # exception dn.se
         # Their category is in article.section
-        if get_domain(url) == "dn.se":
-            if "article" in meta_data and "section" in meta_data.article:
-                return meta_data.article.section
+        if get_domain(url) == "www.dn.se":
+            if "article" in meta_data and "section" in meta_data["article"]:
+                return meta_data["article"]["section"]
 
         # Checks if the meta_data.lp.section exists
-        if "lp" in meta_data and "section" in meta_data.lp:
+        if "lp" in meta_data and "section" in meta_data["lp"]:
             # Some section has / in them
-            if "/" in meta_data.lp.section:
-                split_sect = meta_data.lp.section.split("/")
+            if "/" in meta_data["lp"]["section"]:
+                split_sect = meta_data["lp"]["section"].split("/")
                 return split_sect[-1]
-            return meta_data.lp.section
+            elif "," in meta_data["lp"]["section"]:
+                return meta_data["lp"]["section"].split(",")[-1]
+            return meta_data["lp"]["section"]
 
         # Checks meta_data.article.tag
-        if "article" in meta_data and "tag" in meta_data.article:
-            if "/" in meta_data.article.tag:
-                split_sect = re.findall(r"[\w]", meta_data.article.tag)
+        if "article" in meta_data and "tag" in meta_data["article"]:
+            if "/" in meta_data["article"]["tag"]:
+                split_sect = meta_data["article"]["tag"].split("/")
                 return split_sect[-1]
-            return meta_data.article.tag
+            elif "," in meta_data["article"]["tag"]:
+                return meta_data["article"]["tag"].split(",")[-1]
+
+            return meta_data["article"]["tag"]
         
         # Check if category field exists in meta data
         if "category" in meta_data:
-            return meta_data.category
+            return meta_data["category"]
 
         # Checks the JSON if the category is provided
 
         if json:
-            # exception for expressen, 
+            # exception for expressen.se, 
             # they place the sections weird in the json
-            if get_domain(url) == "expressen.se":
+            if get_domain(url) == "www.expressen.se":
                 splitted_sect = json['keywords'][2].split("/")
                 return splitted_sect[1]
 
@@ -307,9 +314,9 @@ class ContentExtractor(object):
         ]
         for tag in category_article_tags:
             category_tag = self.parser.getElementsByTag(doc, tag='article', attr=tag)
-            artt = self.parser.getAttribute(category_tag[0], tag)
 
             if category_tag:
+                artt = self.parser.getAttribute(category_tag[0], tag)
                 if artt:
                     if "/" in artt:
                         return artt.split("/")[-1]

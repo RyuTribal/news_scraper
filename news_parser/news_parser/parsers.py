@@ -167,7 +167,6 @@ class Parser(object):
     @classmethod
     def textToPara(cls, text):
         return cls.fromstring(text)
-
     @classmethod
     def getChildren(cls, node):
         return node.getchildren()

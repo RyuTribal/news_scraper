@@ -601,6 +601,11 @@ class Article(object):
             raise ArticleException('You must `parse()` an article first!')
 
     def get_dict(self):
+        cat = None
+        if self.category != None:
+            cat = self.category
+        elif self.keywords != None and len(self.keywords) > 0:
+            cat = self.keywords[0]
         return dict(
             title = self.title,
             top_img= self.top_img,
@@ -615,5 +620,5 @@ class Article(object):
             meta_data = self.meta_data,
             url = self.url,
             premium = not self.isAccessible,
-            category = self.category if self.category != None else self.keywords[0]
+            category = cat
         )
