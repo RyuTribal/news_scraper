@@ -25,6 +25,7 @@ import json
 from bs4 import BeautifulSoup
 
 from dateutil.parser import parse as date_parser
+from .urls import get_domain
 from tldextract import tldextract
 from urllib.parse import urljoin, urlparse, urlunparse
 
@@ -225,6 +226,102 @@ class ContentExtractor(object):
             return b
         return b
 
+
+    def get_category(self, doc, url, json, meta_data):
+        """
+        Returns the category of the article
+        """
+
+        # Checks if the meta_data.lp.section exists
+        if "lp" in meta_data and "section" in meta_data.lp:
+            # Some section has / in them
+            if "/" in meta_data.lp.section:
+                split_sect = meta_data.lp.section.split("/")
+                return split_sect[-1]
+            return meta_data.lp.section
+        
+        # Check if category field exists in meta data
+        if "category" in meta_data:
+            return meta_data.category
+
+        # Checks the JSON if the category is provided
+
+        if json:
+            # exception for expressen, 
+            # they place the sections weird in the json
+            if get_domain(url) == "expressen.se":
+                splitted_sect = json['keywords'][2].split("/")
+                return splitted_sect[1]
+
+
+            try:
+              for i in range(len(json)):
+                if isinstance(json[i], list) and len(json[i]) == 3:
+                    return json[i][2]['name']
+
+                if "articleSection" in json[i]:
+                    return json[i]["articleSection"]
+            except:
+                if "articleSection" in json:
+                    return json["articleSection"]
+
+        # exception dagen.se
+        # They store it as class name in body
+
+        if get_domain(url) == "dagen.se":
+            body_tag = self.parser.getElementsByTag(doc, tag='body', attr="class")
+            attr = self.parser.getAttribute(body_tag[0], "class")
+
+            if body_tag:
+                if attr:
+                    return attr.split(" ")[1]
+
+        # exception metromode.se
+        # They store it as class name in html
+
+        if get_domain(url) == "metromode.se":
+            html_tag = self.parser.getElementsByTag(doc, tag='html', attr="class")
+            attr = self.parser.getAttribute(html_tag[0], "class")
+
+            if html_tag:
+                if attr:
+                    return attr.split(" ")[1]
+
+        # check the article data tags
+        category_article_tags = [
+            "data-tags",
+            "data-organisation"
+        ]
+        for tag in category_article_tags:
+            category_tag = self.parser.getElementsByTag(doc, tag='article', attr=tag)
+            artt = re.findall(r"[\w]", self.parser.getAttribute(category_tag[0], tag))[0]
+
+            if category_tag:
+                if artt:
+                    return artt
+
+        # If none of these works, try checking the og url
+        try:
+            og_url = meta_data.og.url
+            urlString = str(og_url)
+            splitted_string = urlString.split("/")
+            return splitted_string[4]
+        except:
+            pass
+
+        return None
+        
+
+
+        
+
+
+
+
+
+
+
+    # To inconsistent
     def get_sportCategory(self, doc, url):
         """
         Returns the sport category of the article

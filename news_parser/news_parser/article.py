@@ -95,7 +95,7 @@ class Article(object):
         # Body text from this article
         self.text = ''
 
-        self.sportCategory = ''
+        self.category = ''
 
         # `keywords` are extracted via nlpSpacy() from the body text
         self.keywordsSpacy = []
@@ -250,7 +250,7 @@ class Article(object):
         # refactor extractor method 
         self.isAccessible = self.extractor.get_Accessibility(self.clean_doc, self.json)
 
-        #self.sportCategory = self.extractor.get_sportCategory(self.clean_doc, self.url)
+        # self.sportCategory = self.extractor.get_sportCategory(self.clean_doc, self.url)
         
         # refactor extractor method 
         authors = self.extractor.get_authors(self.clean_doc, self.json)
@@ -287,6 +287,13 @@ class Article(object):
 
         meta_data = self.extractor.get_meta_data(self.clean_doc)
         self.set_meta_data(meta_data)
+
+        self.category = self.extractor.get_category(self.clean_doc, self.url, self.json, self.meta_data)
+        if self.category != None:
+            # So that everything is lowered and there isn't
+            # different categories because of uppercase
+            # characters
+            self.category.lower()
 
         # refactor extractor method 
         self.publish_date = self.extractor.get_publishing_date(
@@ -608,5 +615,5 @@ class Article(object):
             meta_data = self.meta_data,
             url = self.url,
             premium = not self.isAccessible,
-            category= self.sportCategory
+            category = self.category if self.category != None else self.keywords[0]
         )
