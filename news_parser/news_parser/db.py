@@ -60,7 +60,7 @@ class ElasticDB(object):
 
     def add_document(self, **kwargs):
         final_data = json.dumps(kwargs, indent=2, ensure_ascii=False, cls=CustomEncoder)
-        self.client.index(index="news_articles_"+kwargs["category"], body=final_data)
+        self.client.index(index="news_"+str(kwargs["category"]), body=final_data)
         return True
 
 
