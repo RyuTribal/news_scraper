@@ -12,6 +12,7 @@ class NewsCrawlerPipeline:
     file = None
 
     def open_spider(self, spider):
+        spider.logger.info("Using spider: "+spider.name)
         if hasattr(spider, 'es_db'):
             spider.es_db.connect()
         

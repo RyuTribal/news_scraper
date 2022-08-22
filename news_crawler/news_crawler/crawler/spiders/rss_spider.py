@@ -2,41 +2,47 @@
 
 """
 Contains the code for the spider that 
-crawls through a sitemap
+crawls through an rss feed
 """
 
 __title__ = "news_scraper"
 __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
 __copyright__ = "Copyright 2022, EIOP"
 
-from scrapy.spiders import SitemapSpider
+from scrapy.spiders import XMLFeedSpider
+import scrapy
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 from .utils.detectors import valid_url, get_domain, get_scheme
 from ..items import NewsCrawlerItem
 
 
-class SitemapNewsSpider(SitemapSpider):
-    name = "sitemap_spider"
-    sitemap_urls = None
+class RssNewsSpider(XMLFeedSpider):
+    name = "rss_spider"
     allowed_domains = None
+    itertag = 'item'
+    custom_settings= {
+        'ROBOTSTXT_OBEY' : False
+    }
 
     def __init__(self, url="", cache=None, blob_storage=None, **kwargs):
         domain_url = get_domain(url)
         url_scheme = get_scheme(url)
-        self.sitemap_urls = [url_scheme + "://" + domain_url + "/robots.txt"]
-        self.allowed_domains = [domain_url]
+        self.start_urls = [url]
         self.cache = cache
         self.blob_storage = blob_storage
 
         super().__init__(**kwargs)
 
-    def parse(self, response):
+    def parse_node(self, response, node):
+        url = node.xpath('link/text()').get()
+        if url is not None:
+            yield response.follow(url, callback=self.parse_obj)
+    
+    def parse_obj(self, response):
         if valid_url(response.url):
+            self.logger.info("Found url: "+response.url)
             item = NewsCrawlerItem()
             item["url"] = response.url
             item['html'] = response.body
             yield item
-        else:
-            links = LxmlLinkExtractor(allow=self.allowed_domains).extract_links(response)
-            for link in links:
-                yield response.follow(link, callback=self.parse)
+        

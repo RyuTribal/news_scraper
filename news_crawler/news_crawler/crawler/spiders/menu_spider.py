@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+Code contains the default spider, crawling
+through links
+"""
 
 __title__ = "news_crawler"
 __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
@@ -60,6 +64,7 @@ class MenuSpider(CrawlSpider):
         if valid_url(response.url):
             item = NewsCrawlerItem()
             item["url"] = response.url
+            item['html'] = response.body
             yield item
         else:
 

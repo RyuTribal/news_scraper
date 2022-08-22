@@ -18,6 +18,8 @@ from urllib.parse import parse_qs, urljoin, urlparse, urlsplit, urlunsplit
 
 from tldextract import tldextract
 
+import feedparser
+
 log = logging.getLogger(__name__)
 
 
@@ -40,8 +42,15 @@ BAD_CHUNKS = ['careers', 'contact', 'about', 'faq', 'terms', 'privacy',
 
 BAD_DOMAINS = ['amazon', 'doubleclick', 'twitter']
 
-def is_article(html):
-    pass
+def is_rss(url):
+    try:
+        news_feed = feedparser.parse(url)
+        if len(news_feed['entries']) > 0:
+            return True
+        else:
+            return False
+    except:
+        return False
 
 
 def remove_args(url, keep_params=(), frags=False):
