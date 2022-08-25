@@ -15,6 +15,7 @@ from os import path, environ
 from collections import Counter
 
 from . import settings
+import spacy
 
 ideal = 20.0
 
@@ -153,6 +154,22 @@ def keywords(text):
     else:
         return dict()
 
+def keywords_spacy(text):
+    nlp = spacy.load("sv_core_news_sm")
+
+    keywords = []
+
+    stopwords = nlp.Defaults.stop_words
+
+    doc = nlp(text)
+
+    for i in doc.ents:
+        if i.text.lower() not in stopwords:
+            keywords.append(i.text.lower())
+
+    keywords = list(dict.fromkeys(keywords))
+
+    return keywords
 
 def split_sentences(text):
     """Split a large string into sentences

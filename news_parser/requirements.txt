@@ -11,3 +11,4 @@ requests>=2.10.0
 tldextract>=2.0.1
 elasticsearch>=7.0.0,<8.0.0
 pandas
+spacy
