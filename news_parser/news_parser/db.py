@@ -14,6 +14,8 @@ __copyright__ = "Copyright 2022, EIOP"
 from elasticsearch import Elasticsearch, ConflictError
 import json
 from datetime import datetime, time, date
+import locale
+import dateutil.parser
 
 
 class ElasticDB(object):
@@ -44,6 +46,8 @@ class ElasticDB(object):
         self.creds["port"] = port
         self.creds["index"] = index
 
+        locale.setlocale(locale.LC_TIME, "sv_SE")
+
     def connect(self):
         if self.creds["cloud_id"] and self.creds["api_key"]:
             self.client = Elasticsearch(
@@ -59,17 +63,23 @@ class ElasticDB(object):
             )
 
     def add_document(self, **kwargs):
+        kwargs['publish_date'] = self.fix_date(kwargs['publish_date'])
         final_data = json.dumps(kwargs, indent=2, ensure_ascii=False, cls=CustomEncoder)
         self.client.index(index="news_"+str(kwargs["category"]), body=final_data)
         return True
 
+    def fix_date(self, date):
+        try:
+            return datetime.strptime(date, '%A %d %B %Y')
+        except:
+            pass
+        date = dateutil.parser.parse(date)
+        
+        return date
+
 
 class CustomEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, datetime):
-            return obj.strftime('%Y-%m-%dT%H:%M:%S%z')
-        if isinstance(obj, time):
-            return obj.strftime('%H:%M:%S')
         if hasattr(obj, 'to_json'):
             return obj.to_json()
         if isinstance(obj, set):

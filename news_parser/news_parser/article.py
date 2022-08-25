@@ -604,8 +604,8 @@ class Article(object):
         cat = None
         if self.category != None:
             cat = self.category
-        elif self.keywords != None and len(self.keywords) > 0:
-            cat = self.keywords[0]
+        else:
+            cat = None
         return dict(
             title = self.title,
             top_img= self.top_img,

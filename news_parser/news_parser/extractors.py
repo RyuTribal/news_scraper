@@ -245,7 +245,7 @@ class ContentExtractor(object):
         # exception metromode.se
         # They store it as class name in html
 
-        #can't get html, not important website for now
+        #can't get html tag, not important website for now
         """
         if get_domain(url) == "metromode.se":
             html_tag = self.parser.getElementsByTag(doc, tag='html')
