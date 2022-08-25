@@ -11,11 +11,13 @@ __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
 __copyright__ = "Copyright 2022, EIOP"
 
 
+from webbrowser import get
 from elasticsearch import Elasticsearch, ConflictError
 import json
 from datetime import datetime, time, date
 import locale
 import dateutil.parser
+from .urls import get_domain
 
 
 class ElasticDB(object):
@@ -65,7 +67,7 @@ class ElasticDB(object):
     def add_document(self, **kwargs):
         kwargs['publish_date'] = self.fix_date(kwargs['publish_date'])
         final_data = json.dumps(kwargs, indent=2, ensure_ascii=False, cls=CustomEncoder)
-        self.client.index(index="news_"+str(kwargs["category"]), body=final_data)
+        self.client.index(index="news_"+self.get_appname(kwargs["url"]), body=final_data)
         return True
 
     def fix_date(self, date):
@@ -76,6 +78,16 @@ class ElasticDB(object):
         date = dateutil.parser.parse(date)
         
         return date
+    
+    def get_appname(self, url):
+        domain = get_domain(url)
+        splitted_url = domain.split('.')
+        if len(splitted_url) >= 3:
+            # www.aftonbladet.se gives aftonbladet
+            return splitted_url[1]
+        else:
+            # metromode.se gives metromode
+            return splitted_url[0]
 
 
 class CustomEncoder(json.JSONEncoder):
