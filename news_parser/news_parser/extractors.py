@@ -232,6 +232,11 @@ class ContentExtractor(object):
         Returns the category of the article
         """
 
+        # Check if news_cat field exists in meta data
+        # This is our custom category tag
+        if "news_cat" in meta_data:
+            return meta_data["news_cat"]
+
         # exception dagen.se
         # They store it as class name in body
         if get_domain(url) == "www.dagen.se":
@@ -281,10 +286,6 @@ class ContentExtractor(object):
                 return meta_data["article"]["tag"].split(",")[-1]
 
             return meta_data["article"]["tag"]
-        
-        # Check if category field exists in meta data
-        if "category" in meta_data:
-            return meta_data["category"]
 
         # Checks the JSON if the category is provided
 

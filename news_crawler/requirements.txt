@@ -6,3 +6,4 @@ google
 google-cloud-storage
 redis
 feedparser
+beautifulsoup4>=4.4.1
