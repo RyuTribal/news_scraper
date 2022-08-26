@@ -29,7 +29,7 @@ with codecs.open('README.rst', 'r', 'utf-8') as f:
 
 setup(
     name='news_crawler',
-    version='0.4.9',
+    version='0.5.2',
     description='Crawls and detects articles',
     long_description=readme,
     author='Ivan Sedelkin, Mohammed Shakir, Suad Huseynli',

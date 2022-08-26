@@ -12,3 +12,5 @@ tldextract>=2.0.1
 elasticsearch>=7.0.0,<8.0.0
 pandas
 spacy
+psycopg2-binary>=2.9.3
+dateparser

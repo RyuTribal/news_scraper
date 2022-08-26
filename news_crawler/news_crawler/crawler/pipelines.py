@@ -13,14 +13,13 @@ class NewsCrawlerPipeline:
 
     def open_spider(self, spider):
         spider.logger.info("Using spider: "+spider.name)
-        if hasattr(spider, 'es_db'):
-            spider.es_db.connect()
+        # if hasattr(spider, 'es_db'):
+        #     spider.es_db.connect()
         
-        if hasattr(spider, 'cache'):
-            spider.cache.connect()
+        # if hasattr(spider, 'cache'):
+        #     spider.cache.connect()
 
     def close_spider(self, spider):
-        spider.cache.close_connection()
         pass
 
     def process_item(self, item, spider):
@@ -29,6 +28,4 @@ class NewsCrawlerPipeline:
         name = urllib.parse.quote(url, safe='')+'.html'
         if hasattr(spider, "blob_storage"):
             spider.blob_storage.upload_file(html_bytes, name)
-        if hasattr(spider, 'cache'):
-            spider.cache.add_url(url)
         return item

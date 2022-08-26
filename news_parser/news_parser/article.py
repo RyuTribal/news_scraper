@@ -619,7 +619,7 @@ class Article(object):
             publish_date= self.publish_date,
             summary= self.summary,
             source_url= self.source_url,
-            meta_data = self.meta_data,
+            # meta_data = self.meta_data,
             url = self.url,
             premium = not self.isAccessible,
             category = cat

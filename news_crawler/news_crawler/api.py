@@ -14,15 +14,20 @@ from scrapy.settings import Settings
 from .crawler import crawler_settings as default_settings
 
 
-def run(url = '', cache = None, blob_storage = None, custom_category = None, **kwargs):
-    spider_settings = Settings()
-    spider_settings.setmodule(default_settings)
-    process = CrawlerProcess(settings=spider_settings)
-    if is_rss(url):
-        process.crawl(RssNewsSpider, url=url, cache = cache, blob_storage = blob_storage)
-    elif len(get_sitemap(url)) > 0:
-        process.crawl(SitemapNewsSpider, url=url, cache = cache, blob_storage = blob_storage)
-    else:
-        process.crawl(MenuSpider, url=url, cache = cache, blob_storage = blob_storage)
+class API():
 
-    process.start()
+    def __init__(self):
+        spider_settings = Settings()
+        spider_settings.setmodule(default_settings)
+        self.process = CrawlerProcess(settings=spider_settings)
+
+    def prepare(self, url = '', cache = None, blob_storage = None, custom_category = None, **kwargs):
+        if is_rss(url):
+            self.process.crawl(RssNewsSpider, url=url, cache = cache, blob_storage = blob_storage)
+        elif len(get_sitemap(url)) > 0:
+            self.process.crawl(SitemapNewsSpider, url=url, cache = cache, blob_storage = blob_storage)
+        else:
+            self.process.crawl(MenuSpider, url=url, cache = cache, blob_storage = blob_storage)
+
+    def run(self):
+        self.process.start()

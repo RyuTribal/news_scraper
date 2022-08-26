@@ -5,8 +5,8 @@ __title__ = "news_crawler"
 __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
 __copyright__ = "Copyright 2022, EIOP"
 
-from .api import run
 from .crawler.spiders.utils.db import CacheSQL, CloudBlobStorage
+from .api import API
 
 # Default logging handler
 import logging

@@ -30,7 +30,7 @@ class RssNewsSpider(XMLFeedSpider):
         self.start_urls = [url]
         self.cache = cache
         self.blob_storage = blob_storage
-
+        self.cache.connect()
         super().__init__(**kwargs)
 
     def parse_node(self, response, node):

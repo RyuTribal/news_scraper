@@ -28,6 +28,8 @@ class SitemapNewsSpider(SitemapSpider):
         self.cache = cache
         self.blob_storage = blob_storage
 
+        self.cache.connect()
+
         super().__init__(**kwargs)
 
     def parse(self, response):

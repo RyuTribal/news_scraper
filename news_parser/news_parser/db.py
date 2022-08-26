@@ -11,13 +11,12 @@ __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
 __copyright__ = "Copyright 2022, EIOP"
 
 
-from webbrowser import get
 from elasticsearch import Elasticsearch, ConflictError
 import json
-from datetime import datetime, time, date
-import locale
-import dateutil.parser
 from .urls import get_domain
+from datetime import datetime
+import psycopg2
+import dateparser
 
 
 class ElasticDB(object):
@@ -48,8 +47,6 @@ class ElasticDB(object):
         self.creds["port"] = port
         self.creds["index"] = index
 
-        locale.setlocale(locale.LC_TIME, "sv_SE")
-
     def connect(self):
         if self.creds["cloud_id"] and self.creds["api_key"]:
             self.client = Elasticsearch(
@@ -65,19 +62,10 @@ class ElasticDB(object):
             )
 
     def add_document(self, **kwargs):
-        kwargs['publish_date'] = self.fix_date(kwargs['publish_date'])
+        kwargs['publish_date'] = dateparser.parse(kwargs['publish_date'])
         final_data = json.dumps(kwargs, indent=2, ensure_ascii=False, cls=CustomEncoder)
         self.client.index(index="news_"+self.get_appname(kwargs["url"]), body=final_data)
         return True
-
-    def fix_date(self, date):
-        try:
-            return datetime.strptime(date, '%A %d %B %Y')
-        except:
-            pass
-        date = dateutil.parser.parse(date)
-        
-        return date
     
     def get_appname(self, url):
         domain = get_domain(url)
@@ -92,8 +80,95 @@ class ElasticDB(object):
 
 class CustomEncoder(json.JSONEncoder):
     def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%dT%H:%M:%S%z')
         if hasattr(obj, 'to_json'):
             return obj.to_json()
         if isinstance(obj, set):
             return list(obj)
         return super(CustomEncoder, self).default(obj)
+
+
+class CacheSQL(object):
+    """
+    Object abstracts connection details for postgresql
+    """
+
+    def __init__(
+        self,
+        host="localhost",
+        database="crawler",
+        user="root",
+        password="admin",
+        port=5432,
+    ):
+        self.creds = {}
+        self.creds["host"] = host
+        self.creds["port"] = port
+        self.creds["database"] = database
+        self.creds["user"] = user
+        self.creds["password"] = password
+
+    def connect(self):
+        self.conn = psycopg2.connect(**self.creds)
+        if not self.table_exists("url_cache"):
+            self.create_cache_table()
+
+    def create_cache_table(self):
+        cur = self.conn.cursor()
+        cur.execute(
+            """CREATE TABLE IF NOT EXISTS public.url_cache
+                    (
+                        id serial NOT NULL,
+                        url text COLLATE pg_catalog."default" NOT NULL,
+                        scraped timestamp without time zone NOT NULL DEFAULT now(),
+                        CONSTRAINT url_cache_pkey PRIMARY KEY (id),
+                        CONSTRAINT url_cache_url_key UNIQUE (url)
+                    )
+
+                    TABLESPACE pg_default"""
+        )
+        cur.execute(
+            "COMMENT ON TABLE public.url_cache IS 'For storing url''s that have been crawled'"
+        )
+        self.conn.commit()
+        cur.close()
+
+    def table_exists(self, table_str):
+        exists = False
+        cur = self.conn.cursor()
+        try:
+            cur.execute(
+                "select exists(select relname from pg_class where relname='"
+                + table_str
+                + "')"
+            )
+            exists = cur.fetchone()[0]
+            print(exists)
+        except psycopg2.Error as e:
+            print(e)
+        cur.close()
+        return exists
+
+    def add_url(self, url):
+        cur = self.conn.cursor()
+        try:
+            cur.execute("insert into url_cache(url) values(%s)", [url])
+            self.conn.commit()
+        except:
+            pass
+        cur.close()
+
+    def check_url_exists(self, url):
+        cur = self.conn.cursor()
+        cur.execute("SELECT from url_cache WHERE url=%s", [url])
+        doesExist = cur.fetchone() is not None
+        cur.close()
+
+        return doesExist
+
+    def close_connection(self):
+        if not self.conn.closed:
+            self.conn.close()
+
+

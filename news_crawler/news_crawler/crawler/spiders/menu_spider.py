@@ -58,6 +58,7 @@ class MenuSpider(CrawlSpider):
             ),
         )
         self.cache = cache 
+        self.cache.connect()
         super().__init__(**kwargs)
 
     def parse_obj(self, response):

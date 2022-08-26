@@ -20,7 +20,17 @@ packages = [
 ]
 
 with open('requirements.txt') as f:
-    required = f.read().splitlines()
+    required = []
+    for line in f:
+        line = line.strip()
+        # let's also ignore empty lines and comments
+        if not line or line.startswith('#'):
+            continue
+        if 'https://' in line:
+            tail = line.rsplit('/', 1)[1]
+            tail = tail.split('#')[0]
+            line = tail.replace('@', '==').replace('.git', '')
+        required.append(line)
 
 
 with codecs.open('README.rst', 'r', 'utf-8') as f:
@@ -29,7 +39,7 @@ with codecs.open('README.rst', 'r', 'utf-8') as f:
 
 setup(
     name='news_parser',
-    version='0.5.1',
+    version='0.5.2',
     description='Extracts data from an article file',
     long_description=readme,
     author='Ivan Sedelkin, Mohammed Shakir, Suad Huseynli',
