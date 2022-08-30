@@ -46,7 +46,7 @@ class MenuSpider(CrawlSpider):
         "admin",
     ]
 
-    def __init__(self, url="", cache=None, blob_storage=None, custom_cat = None, **kwargs):
+    def __init__(self, url="", cache=None, blob_storage=None, custom_cat = None, depth_limit=0, **kwargs):
         domain_url = get_domain(url)
         url_scheme = get_scheme(url)
         self.allowed_domains = [domain_url]
@@ -62,6 +62,11 @@ class MenuSpider(CrawlSpider):
         self.blob_storage = blob_storage
         self.cache.connect()
         self.custom_cat = custom_cat
+
+        self.custom_settings= {
+            'DEPTH_LIMIT' : depth_limit
+        }
+
         super().__init__(**kwargs)
 
     def parse_obj(self, response):
