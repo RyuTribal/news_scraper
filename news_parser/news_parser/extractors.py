@@ -96,7 +96,8 @@ class ContentExtractor(object):
                         for j in range(len(json['author'])):
                             auth.append(json['author'][j]['name'])
                     except:
-                        auth.append(json['author']['name'])
+                        if 'author' in json['author']:
+                            auth.append(json['author']['name'])
             return auth
 
         au = self.parser.getElementsByTag(doc, tag='article', attr='data-authors')
@@ -293,7 +294,7 @@ class ContentExtractor(object):
             # exception for expressen.se, 
             # they place the sections weird in the json
             if get_domain(url) == "www.expressen.se":
-                splitted_sect = json['keywords'][2].split("/")
+                splitted_sect = json['keywords'][-1].split("/")
                 return splitted_sect[1]
 
 
