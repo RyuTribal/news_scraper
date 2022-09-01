@@ -622,5 +622,6 @@ class Article(object):
             # meta_data = self.meta_data,
             url = self.url,
             premium = not self.isAccessible,
-            category = cat
+            category = cat,
+            body = self.text
         )
