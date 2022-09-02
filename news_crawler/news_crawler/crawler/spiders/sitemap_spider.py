@@ -35,6 +35,7 @@ class SitemapNewsSpider(SitemapSpider):
 
     def parse(self, response):
         if valid_url(response.url):
+            self.cache.add_url(response.url)
             item = NewsCrawlerItem()
             if self.custom_cat:
                 item['html'] = self.insert_tag_into_html(response.body.decode("utf-8"))
