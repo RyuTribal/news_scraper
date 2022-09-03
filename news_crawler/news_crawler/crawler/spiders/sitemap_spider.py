@@ -28,14 +28,12 @@ class SitemapNewsSpider(SitemapSpider):
         self.allowed_domains = [domain_url]
         self.cache = cache
         self.blob_storage = blob_storage
-        self.cache.connect()
         self.custom_cat = custom_cat
 
         super().__init__(**kwargs)
 
     def parse(self, response):
         if valid_url(response.url):
-            self.cache.add_url(response.url)
             item = NewsCrawlerItem()
             if self.custom_cat:
                 item['html'] = self.insert_tag_into_html(response.body.decode("utf-8"))

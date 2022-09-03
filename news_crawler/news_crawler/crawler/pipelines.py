@@ -20,12 +20,18 @@ class NewsCrawlerPipeline:
         #     spider.cache.connect()
 
     def close_spider(self, spider):
+        # spider.cache.close_connection()
         pass
 
     def process_item(self, item, spider):
         url = ItemAdapter(item).get("url")
         html_bytes = ItemAdapter(item).get("html")
         name = urllib.parse.quote(url, safe='')+'.html'
-        if hasattr(spider, "blob_storage"):
-            spider.blob_storage.upload_file(html_bytes, name)
+        try:
+            if hasattr(spider, "cache"):
+                spider.cache.add_url(url)
+            if hasattr(spider, "blob_storage"):
+                spider.blob_storage.upload_file(html_bytes, name)
+        except:
+            spider.cache.conn.rollback()
         return item

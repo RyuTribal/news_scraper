@@ -20,8 +20,9 @@ class API():
         spider_settings = Settings()
         spider_settings.setmodule(default_settings)
         self.process = CrawlerProcess(settings=spider_settings)
-
     def prepare(self, url = '', cache = None, blob_storage = None, custom_category = None, custom_cat = None, depth_limit=0, **kwargs):
+        if cache != None:
+            cache.connect()
         if is_rss(url):
             self.process.crawl(RssNewsSpider, url=url, cache = cache, blob_storage = blob_storage, custom_cat=custom_cat)
         elif len(get_sitemap(url)) > 0:
@@ -29,5 +30,7 @@ class API():
         else:
             self.process.crawl(MenuSpider, url=url, cache = cache, blob_storage = blob_storage, custom_cat=custom_cat, depth_limit=depth_limit)
 
-    def run(self):
+    def run(self, cache=None):
         self.process.start()
+        if cache != None:
+            cache.close_connection()

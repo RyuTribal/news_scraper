@@ -60,7 +60,6 @@ class MenuSpider(CrawlSpider):
         )
         self.cache = cache 
         self.blob_storage = blob_storage
-        self.cache.connect()
         self.custom_cat = custom_cat
 
         self.custom_settings= {
@@ -71,7 +70,6 @@ class MenuSpider(CrawlSpider):
 
     def parse_obj(self, response):
         if valid_url(response.url):
-            self.cache.add_url(response.url)
             item = NewsCrawlerItem()
             if self.custom_cat:
                 item['html'] = self.insert_tag_into_html(response.body.decode("utf-8"))

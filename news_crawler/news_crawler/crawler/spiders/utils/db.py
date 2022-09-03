@@ -95,7 +95,8 @@ class CacheSQL(object):
             cur.execute("insert into url_cache(url) values(%s)", [url])
             self.conn.commit()
         except:
-            pass
+            cur.rollback()
+            raise Exception('Failed to insert into cache, probably a duplicate url so probably nothing to worry about')
         cur.close()
 
     def check_url_exists(self, url):
