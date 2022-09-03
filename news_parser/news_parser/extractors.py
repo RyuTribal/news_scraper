@@ -295,7 +295,10 @@ class ContentExtractor(object):
             # they place the sections weird in the json
             if get_domain(url) == "www.expressen.se":
                 splitted_sect = json['keywords'][-1].split("/")
-                return splitted_sect[1]
+                if len(splitted_sect) > 1:
+                    return splitted_sect[1]
+                else:
+                    return splitted_sect[0]
 
 
             try:
