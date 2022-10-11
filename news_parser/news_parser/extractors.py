@@ -25,6 +25,8 @@ import json
 from bs4 import BeautifulSoup
 
 from dateutil.parser import parse as date_parser
+
+from news_parser import article
 from .urls import get_domain
 from tldextract import tldextract
 from urllib.parse import urljoin, urlparse, urlunparse
@@ -491,7 +493,8 @@ class ContentExtractor(object):
             except:
                 if 'headline' in json:
                     jsonTitle += str(json['headline'])
-            return jsonTitle
+                if len(jsonTitle) > 2:
+                    return jsonTitle
 
         title = ''
         title_element = self.parser.getElementsByTag(doc, tag='title')
@@ -774,6 +777,16 @@ class ContentExtractor(object):
 
     def getjson(self, doc):
         soup = BeautifulSoup(doc, "html.parser")
+        # Step 1: Check the json inside of article tag
+        try:
+            article_elem = soup.find("article")
+            json_elem = article_elem.find_all('script', type='application/ld+json')[0].string
+            parsedjson = json.loads(json_elem)
+            if(parsedjson is not None or len(parsedjson)>0):    
+                return parsedjson
+        except:
+            pass
+        # Step 2: Check if a general json exists
         try:
             jsonelement = soup.find_all('script', type='application/ld+json')[0].string
             parsedjson = json.loads(jsonelement)

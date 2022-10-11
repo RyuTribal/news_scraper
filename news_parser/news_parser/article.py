@@ -621,6 +621,7 @@ class Article(object):
             source_url= self.source_url,
             # meta_data = self.meta_data,
             url = self.url,
+            favicon = self.meta_favicon,
             premium = not self.isAccessible,
             category = cat,
             body = self.text
