@@ -154,22 +154,26 @@ def keywords(text):
     else:
         return dict()
 
+
 def keywords_spacy(text):
-    nlp = spacy.load("sv_core_news_sm")
+    nlp = spacy.load("sv_core_news_md")
+
+    clean_text = re.sub('\n', ' ', text)  # strip newlines
 
     keywords = []
 
-    stopwords = nlp.Defaults.stop_words
+    stop_words = nlp.Defaults.stop_words
 
-    doc = nlp(text)
+    doc = nlp(clean_text)
 
     for i in doc.ents:
-        if i.text.lower() not in stopwords:
-            keywords.append(i.text.lower())
+        if i.lemma_ not in stop_words and (i.label_ != "TME" or i.label_ != "MISC"):
+            keywords.append(i.lemma_.lower())
 
     keywords = list(dict.fromkeys(keywords))
 
     return keywords
+
 
 def split_sentences(text):
     """Split a large string into sentences

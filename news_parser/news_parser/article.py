@@ -21,7 +21,7 @@ from . import urls
 
 from .cleaners import DocumentCleaner
 from .configuration import Configuration
-from .extractors import ContentExtractor
+from .extractors import ContentExtractor 
 from .outputformatters import OutputFormatter
 from .utils import (URLHelper, RawHelper, extend_config,
                     get_available_languages, extract_meta_refresh)
@@ -44,6 +44,7 @@ class ArticleException(Exception):
 class Article(object):
     """Article objects abstract an online news article page
     """
+
     def __init__(self, url='', title='', source_url='', config=None, **kwargs):
         """The **kwargs argument may be filled with config values, which
         is added into the config object
@@ -71,7 +72,7 @@ class Article(object):
         # URL to the main page of the news source which owns this article
         self.source_url = source_url
 
-        #Json file that we get from script tag with type="application/ld+json"
+        # Json file that we get from script tag with type="application/ld+json"
         self.json = None
 
         self.url = urls.prepare_url(url, self.source_url)
@@ -96,9 +97,6 @@ class Article(object):
         self.text = ''
 
         self.category = ''
-
-        # `keywords` are extracted via nlpSpacy() from the body text
-        self.keywordsSpacy = []
 
         # `keywords` are extracted via nlp() from the body text
         self.keywords = []
@@ -222,12 +220,10 @@ class Article(object):
         self.set_title(title)
 
     def parse(self):
-        
+
         self.throw_if_not_downloaded_verbose()
 
-
-        self.json= self.extractor.getjson(self.html)
-        
+        self.json = self.extractor.getjson(self.html)
 
         self.doc = self.config.get_parser().fromstring(self.html)
         self.clean_doc = copy.deepcopy(self.doc)
@@ -243,16 +239,17 @@ class Article(object):
         document_cleaner = DocumentCleaner(self.config)
         output_formatter = OutputFormatter(self.config)
 
-        # refactor extractor method 
+        # refactor extractor method
         title = self.extractor.get_title(self.clean_doc, self.json)
         self.set_title(title)
 
-        # refactor extractor method 
-        self.isAccessible = self.extractor.get_Accessibility(self.clean_doc, self.json)
+        # refactor extractor method
+        self.isAccessible = self.extractor.get_Accessibility(
+            self.clean_doc, self.json)
 
         # self.sportCategory = self.extractor.get_sportCategory(self.clean_doc, self.url)
-        
-        # refactor extractor method 
+
+        # refactor extractor method
         authors = self.extractor.get_authors(self.clean_doc, self.json)
         self.set_authors(authors)
 
@@ -288,14 +285,15 @@ class Article(object):
         meta_data = self.extractor.get_meta_data(self.clean_doc)
         self.set_meta_data(meta_data)
 
-        self.category = self.extractor.get_category(self.clean_doc, self.url, self.json, self.meta_data)
+        self.category = self.extractor.get_category(
+            self.clean_doc, self.url, self.json, self.meta_data)
         if self.category != None:
             # So that everything is lowered and there isn't
             # different categories because of uppercase
             # characters
             self.category.lower()
 
-        # refactor extractor method 
+        # refactor extractor method
         self.publish_date = self.extractor.get_publishing_date(
             self.url,
             self.clean_doc, self.json)
@@ -415,13 +413,34 @@ class Article(object):
         text_keyws = nlp.keywords_spacy(self.text)
         title_keyws = nlp.keywords_spacy(self.title)
         keyws = list(set(title_keyws + text_keyws))
+        keyws = self.remove_unnecessary_keywords(keyws)
         self.set_keywords(keyws)
 
         max_sents = self.config.MAX_SUMMARY_SENT
 
-        summary_sents = nlp.summarize(title=self.title, text=self.text, max_sents=max_sents)
+        summary_sents = nlp.summarize(
+            title=self.title, text=self.text, max_sents=max_sents)
         summary = '\n'.join(summary_sents)
         self.set_summary(summary)
+
+    def remove_unnecessary_keywords(self, keywords):
+        """Removes unnecessary keywords such as 
+        author, article site name, etc
+        """
+        self.throw_if_not_downloaded_verbose()
+        self.throw_if_not_parsed_verbose()
+
+        for author in self.authors:
+            if author.lower() in keywords:
+                keywords.remove(author.lower())
+
+        domain = urls.get_url_name(self.url)
+        if domain.lower() in keywords:
+            keywords.remove(domain.lower())
+
+        return keywords
+        
+        
 
     def get_parse_candidate(self):
         """A parse candidate is a wrapper object holding a link hash of this
@@ -470,7 +489,8 @@ class Article(object):
             if "Can't convert 'NoneType' object to str implicitly" in e.args[0]:
                 log.debug('No pictures found. Top image not set, %s' % e)
             elif 'timed out' in e.args[0]:
-                log.debug('Download of picture timed out. Top image not set, %s' % e)
+                log.debug(
+                    'Download of picture timed out. Top image not set, %s' % e)
             else:
                 log.critical('TypeError other than None type error. '
                              'Cannot set top image using the Reddit '
@@ -593,7 +613,7 @@ class Article(object):
             raise ArticleException('You must `download()` an article first!')
         elif self.download_state == ArticleDownloadState.FAILED_RESPONSE:
             raise ArticleException('Article `download()` failed with %s on URL %s' %
-                  (self.download_exception_msg, self.url))
+                                   (self.download_exception_msg, self.url))
 
     def throw_if_not_parsed_verbose(self):
         """Parse `is_parsed` status -> log readable status
@@ -609,20 +629,21 @@ class Article(object):
         else:
             cat = None
         return dict(
-            title = self.title,
-            top_img= self.top_img,
-            images= self.imgs,
-            movies = self.movies,
-            keywords= self.keywords + self.meta_keywords,
-            tags= self.tags,
-            authors= self.authors,
-            publish_date= self.publish_date,
-            summary= self.summary,
-            source_url= self.source_url,
+            title=self.title,
+            top_img=self.top_img,
+            images=self.imgs,
+            movies=self.movies,
+            keywords=self.keywords + self.meta_keywords,
+            tags=self.tags,
+            authors=self.authors,
+            publish_date=self.publish_date,
+            summary=self.summary,
+            source_url=self.source_url,
             # meta_data = self.meta_data,
-            url = self.url,
-            favicon = self.meta_favicon,
-            premium = not self.isAccessible,
-            category = cat,
-            body = self.text
+            stemmed_keywords=self.stemmed_keyws,
+            url=self.url,
+            favicon=self.meta_favicon,
+            premium=not self.isAccessible,
+            category=cat,
+            body=self.text
         )
