@@ -12,6 +12,8 @@ __title__ = "news_scraper"
 __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
 __copyright__ = "Copyright 2022, EIOP"
 
+import lxml
+
 
 from cgitb import html
 import copy
@@ -250,6 +252,7 @@ class ContentExtractor(object):
                 if attr:
                     return attr.split(" ")[1]
 
+    
         # exception metromode.se
         # They store it as class name in html
 
@@ -1023,7 +1026,7 @@ class ContentExtractor(object):
         category_urls = [c for c in category_urls if c is not None]
         return category_urls
 
-    def extract_tags(self, doc, json):
+    def extract_tags(self, doc, json, url):
         tag = []
         if json:
             for i in range(len(json)):
@@ -1034,12 +1037,24 @@ class ContentExtractor(object):
                         else:
                             tag.append(json[i]['keywords'])
                 except:
+
                     if 'keywords' in json:
                         if isinstance(json['keywords'], list):
                             tag = json['keywords']
                         else:
                             tag.append(json['keywords'])
             return tag
+
+        if get_domain(url) == "www.gp.se":
+            try:
+                tags=self.parser.xpath_re(doc,'//meta[@property="article:tag"]' ) 
+                for i in tags:
+                    tag.append(self.parser.getAttribute(i,attr="content").lower())
+                
+            except:
+                pass
+            return tag
+            
 
         if len(list(doc)) == 0:
             return NO_STRINGS

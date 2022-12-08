@@ -278,7 +278,7 @@ class Article(object):
         self.set_canonical_link(canonical_link)
 
         # refactor extractor method 
-        tags = self.extractor.extract_tags(self.clean_doc, self.json)
+        tags = self.extractor.extract_tags(self.clean_doc, self.json, self.url)
         self.set_tags(tags)
 
         meta_keywords = self.extractor.get_meta_keywords(
