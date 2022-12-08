@@ -65,7 +65,8 @@ class ElasticDB(object):
         if isinstance(kwargs["publish_date"], str):
             kwargs['publish_date'] = dateparser.parse(kwargs['publish_date'])
         final_data = json.dumps(kwargs, indent=2, ensure_ascii=False, cls=CustomEncoder)
-        self.client.index(index="news_"+self.get_appname(kwargs["url"]), body=final_data)
+        # self.client.index(index="news_"+self.get_appname(kwargs["url"]), body=final_data)
+        self.client.index(index="news_articles", body=final_data)
         return True
     
     def get_appname(self, url):

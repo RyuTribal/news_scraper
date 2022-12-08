@@ -60,6 +60,10 @@ def get_sitemap(url):
     
     return sitemaps
 
+def get_url_name(url):
+    ext = tldextract.extract(url)
+    return ext.domain
+
 
 def remove_args(url, keep_params=(), frags=False):
     """
