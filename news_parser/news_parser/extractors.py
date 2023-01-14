@@ -29,10 +29,9 @@ from bs4 import BeautifulSoup
 from dateutil.parser import parse as date_parser
 
 from news_parser import article
-from .urls import get_domain
+from .urls import get_domain, get_url_name
 from tldextract import tldextract
 from urllib.parse import urljoin, urlparse, urlunparse
-
 from . import urls
 from .utils import StringReplacement, StringSplitter
 
@@ -244,7 +243,7 @@ class ContentExtractor(object):
 
         # exception dagen.se
         # They store it as class name in body
-        if get_domain(url) == "www.dagen.se":
+        if get_url_name(url) == "dagen":
             body_tag = self.parser.getElementsByTag(doc, tag='body')
             attr = self.parser.getAttribute(body_tag[0], "class")
 
@@ -255,7 +254,7 @@ class ContentExtractor(object):
     
         # exception metromode.se
         # They store it as class name in html
-
+        
         #can't get html tag, not important website for now
         """
         if get_domain(url) == "metromode.se":
@@ -269,7 +268,7 @@ class ContentExtractor(object):
 
         # exception dn.se
         # Their category is in article.section
-        if get_domain(url) == "www.dn.se":
+        if get_url_name(url) == "dn":
             if "article" in meta_data and "section" in meta_data["article"]:
                 return meta_data["article"]["section"]
 
@@ -298,7 +297,7 @@ class ContentExtractor(object):
         if json:
             # exception for expressen.se, 
             # they place the sections weird in the json
-            if get_domain(url) == "www.expressen.se":
+            if get_url_name(url) == "expressen":
                 splitted_sect = json['keywords'][-1].split("/")
                 if len(splitted_sect) > 1:
                     return splitted_sect[1]
@@ -1026,34 +1025,90 @@ class ContentExtractor(object):
         category_urls = [c for c in category_urls if c is not None]
         return category_urls
 
-    def extract_tags(self, doc, json, url):
+    def filter_dupl(self, unfiltered_tags):
+        tag=[]
+        for i in unfiltered_tags:
+            if i not in tag:
+                tag.append(i)
+        return tag
+
+    def extract_tags(self, doc, json1, url):
         tag = []
-        if json:
-            for i in range(len(json)):
-                try:
-                    if 'keywords' in json[i]:
-                        if isinstance(json[i]['keywords'], list):
-                            tag = json[i]['keywords']
-                        else:
-                            tag.append(json[i]['keywords'])
-                except:
 
-                    if 'keywords' in json:
-                        if isinstance(json['keywords'], list):
-                            tag = json['keywords']
-                        else:
-                            tag.append(json['keywords'])
-            return tag
+        
 
-        if get_domain(url) == "www.gp.se":
+        if get_url_name(url) == "svd":
             try:
-                tags=self.parser.xpath_re(doc,'//meta[@property="article:tag"]' ) 
+                tags=self.parser.xpath_re(doc,'/html/body/div[4]/div[1]') 
                 for i in tags:
-                    tag.append(self.parser.getAttribute(i,attr="content").lower())
-                
+                    data_json =self.parser.getAttribute(i,attr="data-context-pageview")
+                    
+                    jsonified= json.loads(data_json)
+                    for f in jsonified['data'].values():
+                        if 'tags' in f:
+                            for j in f['tags']:
+                                tag.append(j["id"].lower())
+
             except:
                 pass
             return tag
+
+        if get_url_name(url)=="expressen" or get_url_name(url)=="aftonbladet":
+            for i in range(len(json1)):
+                try:
+                    if 'keywords' in json1[i]:
+                        if isinstance(json1[i]['keywords'], list):
+                            tag = json1[i]['keywords']
+                        else:
+                            tag.append(json1[i]['keywords'])
+                except:
+
+                    if 'keywords' in json1:
+                        if isinstance(json1['keywords'], list):
+                            tag = json1['keywords']
+                        else:
+                            tag.append(json1['keywords'])
+            return tag
+        
+       
+        try:
+            tags=self.parser.xpath_re(doc,'//meta[@property="article:tag"]' ) 
+            sport=self.parser.xpath_re(doc,'//meta[@property="article:section"]')
+            vk_cat=self.parser.xpath_re(doc,'//meta[@property="og:category"]')  
+            for i in tags:
+                tag.append(self.parser.getAttribute(i,attr="content").lower())
+            for i in sport:
+                tag.append(self.parser.getAttribute(i,attr="content").lower())
+            for i in vk_cat:
+                tag.append(self.parser.getAttribute(i,attr="content").lower())
+        
+            tags=self.parser.xpath_re(doc,'/html/body/main/article' ) 
+            for i in tags:
+                tag.append(self.parser.getAttribute(i,attr="data-tags").lower())
+                tag.append(self.parser.getAttribute(i,attr="data-story").lower())
+                tag.append(self.parser.getAttribute(i,attr="data-section").lower())
+                tag.append(self.parser.getAttribute(i,attr="data-organisations").lower())
+                tag.append(self.parser.getAttribute(i,attr="data-master-section").lower())
+                    
+                        #tag.append(self.parser.getAttribute(i,attr="data-locations").lower()) For future use
+        except:
+            pass
+        tag=list(filter(None,tag))
+        filtered_tags=self.filter_dupl(tag)
+        new_list=[]
+        for i in filtered_tags:
+            temp=i.split("/")
+            for c in temp:
+                new_list.append(c)
+        return new_list
+
+       
+        #     #TODO some websites have og category where they have the Segmentering. VK
+
+        
+        
+        
+        
             
 
         if len(list(doc)) == 0:

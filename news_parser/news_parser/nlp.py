@@ -16,7 +16,7 @@ from collections import Counter
 
 from . import settings
 import spacy
-
+import sv_core_news_md
 ideal = 20.0
 
 stopwords = set()
