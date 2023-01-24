@@ -8,7 +8,7 @@ __title__ = "news_scraper"
 __author__ = "Ivan Sedelkin, Suad Huseynli, Mohammed Shakir"
 __copyright__ = "Copyright 2022, EIOP"
 
-version_info = (0, 5, 6)
+version_info = (0, 6, 1)
 __version__ = ".".join(map(str, version_info))
 
 # Scrape and Lick

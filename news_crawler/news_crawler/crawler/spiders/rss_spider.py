@@ -25,13 +25,14 @@ class RssNewsSpider(XMLFeedSpider):
         'ROBOTSTXT_OBEY' : False
     }
 
-    def __init__(self, url="", cache=None, blob_storage=None, custom_cat = None, **kwargs):
+    def __init__(self, url="", cache=None, blob_storage=None, custom_cat = None, custom_loc = None, **kwargs):
         domain_url = get_domain(url)
         url_scheme = get_scheme(url)
         self.start_urls = [url]
         self.cache = cache
         self.blob_storage = blob_storage
         self.custom_cat = custom_cat
+        self.custom_loc = custom_loc
         super().__init__(**kwargs)
 
     def parse_node(self, response, node):
@@ -42,18 +43,24 @@ class RssNewsSpider(XMLFeedSpider):
     def parse_obj(self, response):
         if valid_url(response.url):
             item = NewsCrawlerItem()
-            if self.custom_cat:
-                item['html'] = self.insert_tag_into_html(response.body.decode("utf-8"))
+            if self.custom_cat or self.custom_loc:
+                tags = []
+                if self.custom_cat:
+                    tags.append(("news_cat", self.custom_cat))
+                if self.custom_loc:
+                    tags.append(("news_loc", self.custom_loc))
+                item['html'] = self.insert_tag_into_html(response.body.decode("utf-8"), tags=tags)
             else:
                 item['html'] = response.body
             item["url"] = response.url
             yield item
     
-    def insert_tag_into_html(self, html):
+    def insert_tag_into_html(self, html, tags=[]):
         soup = Soup(html, "lxml")
-        custom_tag = soup.new_tag('meta')
-        custom_tag['property'] = "news_cat"
-        custom_tag['content'] = self.custom_cat
-        soup.head.append(custom_tag)
+        for tag in tags:
+            custom_tag = soup.new_tag('meta')
+            custom_tag['property'] = tag[0]
+            custom_tag['content'] = tag[1]
+            soup.head.append(custom_tag)
         return soup.encode("utf8")
         

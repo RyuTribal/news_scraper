@@ -21,7 +21,7 @@ from . import urls
 
 from .cleaners import DocumentCleaner
 from .configuration import Configuration
-from .extractors import ContentExtractor 
+from .extractors import ContentExtractor
 from .outputformatters import OutputFormatter
 from .utils import (URLHelper, RawHelper, extend_config,
                     get_available_languages, extract_meta_refresh)
@@ -163,6 +163,9 @@ class Article(object):
         # A property dict for users to store custom data.
         self.additional_data = {}
 
+        # Location of the article content, not where it was written
+        self.location = None
+
     def build(self):
         """Build a lone article from a URL independent of the source (newspaper).
         Don't normally call this method b/c it's good to multithread articles
@@ -274,7 +277,7 @@ class Article(object):
             self.url, self.clean_doc)
         self.set_canonical_link(canonical_link)
 
-        # refactor extractor method 
+        # refactor extractor method
         tags = self.extractor.extract_tags(self.clean_doc, self.json, self.url)
         self.set_tags(tags)
 
@@ -284,6 +287,9 @@ class Article(object):
 
         meta_data = self.extractor.get_meta_data(self.clean_doc)
         self.set_meta_data(meta_data)
+
+        location = self.extractor.get_location(self.clean_doc, self.json, self.meta_data)
+        self.set_location(location)
 
         self.category = self.extractor.get_category(
             self.clean_doc, self.url, self.json, self.meta_data)
@@ -438,9 +444,10 @@ class Article(object):
         if domain.lower() in keywords:
             keywords.remove(domain.lower())
 
+        if "" in keywords:
+            keywords.remove("")
+
         return keywords
-        
-        
 
     def get_parse_candidate(self):
         """A parse candidate is a wrapper object holding a link hash of this
@@ -477,6 +484,10 @@ class Article(object):
             except OSError:
                 pass
         # os.remove(path)
+
+    def set_location(self, location):
+        self.throw_if_not_downloaded_verbose()
+        self.location = location
 
     def set_reddit_top_img(self):
         """Wrapper for setting images. Queries known image attributes
@@ -639,8 +650,8 @@ class Article(object):
             publish_date=self.publish_date,
             summary=self.summary,
             source_url=self.source_url,
+            location=self.location,
             # meta_data = self.meta_data,
-            stemmed_keywords=self.stemmed_keyws,
             url=self.url,
             favicon=self.meta_favicon,
             premium=not self.isAccessible,

@@ -103,7 +103,8 @@ class ContentExtractor(object):
                             auth.append(json['author']['name'])
             return auth
 
-        au = self.parser.getElementsByTag(doc, tag='article', attr='data-authors')
+        au = self.parser.getElementsByTag(
+            doc, tag='article', attr='data-authors')
         if au:
             artt = self.parser.getAttribute(au[0], 'data-authors')
             if artt:
@@ -170,11 +171,11 @@ class ContentExtractor(object):
 
             return _authors
 
-
         # Try 1: Search popular author tags for authors
 
         ATTRS = ['name', 'rel', 'itemprop', 'class', 'id']
-        VALS = ['author', 'byline', 'dc.creator', 'byl', 'article__byline', 'article__author-name']
+        VALS = ['author', 'byline', 'dc.creator', 'byl',
+                'article__byline', 'article__author-name']
         matches = []
         authors = []
 
@@ -225,11 +226,19 @@ class ContentExtractor(object):
             except:
                 if 'isAccessibleForFree' in json:
                     if (json['isAccessibleForFree'] == 'False'):
-                            b = False
+                        b = False
 
             return b
         return b
 
+    def get_location(self, doc, json, meta_data):
+        """
+        Returns the location of the article
+        """
+        if "news_loc" in meta_data:
+            return meta_data["news_loc"]
+
+        return None
 
     def get_category(self, doc, url, json, meta_data):
         """
@@ -251,11 +260,10 @@ class ContentExtractor(object):
                 if attr:
                     return attr.split(" ")[1]
 
-    
         # exception metromode.se
         # They store it as class name in html
-        
-        #can't get html tag, not important website for now
+
+        # can't get html tag, not important website for now
         """
         if get_domain(url) == "metromode.se":
             html_tag = self.parser.getElementsByTag(doc, tag='html')
@@ -295,7 +303,7 @@ class ContentExtractor(object):
         # Checks the JSON if the category is provided
 
         if json:
-            # exception for expressen.se, 
+            # exception for expressen.se,
             # they place the sections weird in the json
             if get_url_name(url) == "expressen":
                 splitted_sect = json['keywords'][-1].split("/")
@@ -304,14 +312,13 @@ class ContentExtractor(object):
                 else:
                     return splitted_sect[0]
 
-
             try:
-              for i in range(len(json)):
-                if isinstance(json[i], list) and len(json[i]) == 3:
-                    return json[i][2]['name']
+                for i in range(len(json)):
+                    if isinstance(json[i], list) and len(json[i]) == 3:
+                        return json[i][2]['name']
 
-                if "articleSection" in json[i]:
-                    return json[i]["articleSection"]
+                    if "articleSection" in json[i]:
+                        return json[i]["articleSection"]
             except:
                 if "articleSection" in json:
                     return json["articleSection"]
@@ -322,7 +329,8 @@ class ContentExtractor(object):
             "data-organisation"
         ]
         for tag in category_article_tags:
-            category_tag = self.parser.getElementsByTag(doc, tag='article', attr=tag)
+            category_tag = self.parser.getElementsByTag(
+                doc, tag='article', attr=tag)
 
             if category_tag:
                 artt = self.parser.getAttribute(category_tag[0], tag)
@@ -343,24 +351,16 @@ class ContentExtractor(object):
             pass
 
         return None
-        
-
-
-        
-
-
-
-
-
-
 
     # To inconsistent
+
     def get_sportCategory(self, doc, url):
         """
         Returns the sport category of the article
         """
-        sports = ['fotboll', 'basket', 'futsal', 'bandy', 'innebandy', 'ishockey', 'hockey', 'golf', 'padel', 'handboll', 'ridsport', 'friidrott', 'simning', 'tennis', 'motorsport', 'baseball', 'mma', 'boxning', 'cykling', 'volleyboll']
-        
+        sports = ['fotboll', 'basket', 'futsal', 'bandy', 'innebandy', 'ishockey', 'hockey', 'golf', 'padel', 'handboll',
+                  'ridsport', 'friidrott', 'simning', 'tennis', 'motorsport', 'baseball', 'mma', 'boxning', 'cykling', 'volleyboll']
+
         urlString = str(url)
         splitted_string = urlString.split("/")
         splitted_string.pop(-1)
@@ -377,13 +377,14 @@ class ContentExtractor(object):
                     return str(i)
         except:
             pass
-        
-        sport = self.parser.getElementsByTag(doc, tag='article', attr='data-tags')
+
+        sport = self.parser.getElementsByTag(
+            doc, tag='article', attr='data-tags')
         artt = self.parser.getAttribute(sport[0], 'data-tags')
         if sport:
             if artt:
                 return artt
-        
+
     def get_publishing_date(self, url, doc, json):
         """3 strategies for publishing date extraction. The strategies
         are descending in accuracy and the next strategy is only
@@ -402,10 +403,11 @@ class ContentExtractor(object):
             except:
                 if 'datePublished' in json:
                     date += str(json['datePublished'])
-    
+
             return date
-        
-        dateTime = self.parser.getElementsByTag(doc, tag='time', attr='dateTime')
+
+        dateTime = self.parser.getElementsByTag(
+            doc, tag='time', attr='dateTime')
 
         if dateTime:
             for i in range(len(dateTime)):
@@ -529,8 +531,8 @@ class ContentExtractor(object):
 
         # title from og:title
         title_text_fb = (
-        self.get_meta_content(doc, 'meta[property="og:title"]') or
-        self.get_meta_content(doc, 'meta[name="og:title"]') or '')
+            self.get_meta_content(doc, 'meta[property="og:title"]') or
+            self.get_meta_content(doc, 'meta[name="og:title"]') or '')
 
         # create filtered versions of title_text, title_text_h1, title_text_fb
         # for finer comparison
@@ -699,15 +701,18 @@ class ContentExtractor(object):
         if not try_one:
             link_img_src_kwargs = \
                 {'tag': 'link', 'attr': 'rel', 'value': 'img_src|image_src'}
-            elems = self.parser.getElementsByTag(doc, use_regex=True, **link_img_src_kwargs)
+            elems = self.parser.getElementsByTag(
+                doc, use_regex=True, **link_img_src_kwargs)
             try_two = elems[0].get('href') if elems else None
 
             if not try_two:
                 try_three = self.get_meta_content(doc, 'meta[name="og:image"]')
 
                 if not try_three:
-                    link_icon_kwargs = {'tag': 'link', 'attr': 'rel', 'value': 'icon'}
-                    elems = self.parser.getElementsByTag(doc, **link_icon_kwargs)
+                    link_icon_kwargs = {'tag': 'link',
+                                        'attr': 'rel', 'value': 'icon'}
+                    elems = self.parser.getElementsByTag(
+                        doc, **link_icon_kwargs)
                     try_four = elems[0].get('href') if elems else None
 
         top_meta_image = try_one or try_two or try_three or try_four
@@ -775,31 +780,30 @@ class ContentExtractor(object):
                 ref = ref[part]
         return data
 
-
-
     def getjson(self, doc):
         soup = BeautifulSoup(doc, "html.parser")
         # Step 1: Check the json inside of article tag
         try:
             article_elem = soup.find("article")
-            json_elem = article_elem.find_all('script', type='application/ld+json')[0].string
+            json_elem = article_elem.find_all(
+                'script', type='application/ld+json')[0].string
             parsedjson = json.loads(json_elem)
-            if(parsedjson is not None or len(parsedjson)>0):    
+            if (parsedjson is not None or len(parsedjson) > 0):
                 return parsedjson
         except:
             pass
         # Step 2: Check if a general json exists
         try:
-            jsonelement = soup.find_all('script', type='application/ld+json')[0].string
+            jsonelement = soup.find_all(
+                'script', type='application/ld+json')[0].string
             parsedjson = json.loads(jsonelement)
-            if(parsedjson is not None or len(parsedjson)>0):    
+            if (parsedjson is not None or len(parsedjson) > 0):
                 return parsedjson
             else:
-                #TODO sniff ajax requests
+                # TODO sniff ajax requests
                 return None
         except:
             return None
-
 
     def get_canonical_link(self, article_url, doc):
         """
@@ -1026,7 +1030,7 @@ class ContentExtractor(object):
         return category_urls
 
     def filter_dupl(self, unfiltered_tags):
-        tag=[]
+        tag = []
         for i in unfiltered_tags:
             if i not in tag:
                 tag.append(i)
@@ -1035,15 +1039,14 @@ class ContentExtractor(object):
     def extract_tags(self, doc, json1, url):
         tag = []
 
-        
-
         if get_url_name(url) == "svd":
             try:
-                tags=self.parser.xpath_re(doc,'/html/body/div[4]/div[1]') 
+                tags = self.parser.xpath_re(doc, '/html/body/div[4]/div[1]')
                 for i in tags:
-                    data_json =self.parser.getAttribute(i,attr="data-context-pageview")
-                    
-                    jsonified= json.loads(data_json)
+                    data_json = self.parser.getAttribute(
+                        i, attr="data-context-pageview")
+
+                    jsonified = json.loads(data_json)
                     for f in jsonified['data'].values():
                         if 'tags' in f:
                             for j in f['tags']:
@@ -1053,63 +1056,63 @@ class ContentExtractor(object):
                 pass
             return tag
 
-        if get_url_name(url)=="expressen" or get_url_name(url)=="aftonbladet":
-            for i in range(len(json1)):
-                try:
-                    if 'keywords' in json1[i]:
-                        if isinstance(json1[i]['keywords'], list):
-                            tag = json1[i]['keywords']
-                        else:
-                            tag.append(json1[i]['keywords'])
-                except:
+        if get_url_name(url) == "expressen" or get_url_name(url) == "aftonbladet":
+            if json1 != None:
+                for i in range(len(json1)):
+                    try:
+                        if 'keywords' in json1[i]:
+                            if isinstance(json1[i]['keywords'], list):
+                                tag = json1[i]['keywords']
+                            else:
+                                tag.append(json1[i]['keywords'])
+                    except:
 
-                    if 'keywords' in json1:
-                        if isinstance(json1['keywords'], list):
-                            tag = json1['keywords']
-                        else:
-                            tag.append(json1['keywords'])
-            return tag
-        
-       
+                        if 'keywords' in json1:
+                            if isinstance(json1['keywords'], list):
+                                tag = json1['keywords']
+                            else:
+                                tag.append(json1['keywords'])
+                return tag
+
         try:
-            tags=self.parser.xpath_re(doc,'//meta[@property="article:tag"]' ) 
-            sport=self.parser.xpath_re(doc,'//meta[@property="article:section"]')
-            vk_cat=self.parser.xpath_re(doc,'//meta[@property="og:category"]')  
+            tags = self.parser.xpath_re(doc, '//meta[@property="article:tag"]')
+            sport = self.parser.xpath_re(
+                doc, '//meta[@property="article:section"]')
+            vk_cat = self.parser.xpath_re(
+                doc, '//meta[@property="og:category"]')
             for i in tags:
-                tag.append(self.parser.getAttribute(i,attr="content").lower())
+                tag.append(self.parser.getAttribute(i, attr="content").lower())
             for i in sport:
-                tag.append(self.parser.getAttribute(i,attr="content").lower())
+                tag.append(self.parser.getAttribute(i, attr="content").lower())
             for i in vk_cat:
-                tag.append(self.parser.getAttribute(i,attr="content").lower())
-        
-            tags=self.parser.xpath_re(doc,'/html/body/main/article' ) 
+                tag.append(self.parser.getAttribute(i, attr="content").lower())
+
+            tags = self.parser.xpath_re(doc, '/html/body/main/article')
             for i in tags:
-                tag.append(self.parser.getAttribute(i,attr="data-tags").lower())
-                tag.append(self.parser.getAttribute(i,attr="data-story").lower())
-                tag.append(self.parser.getAttribute(i,attr="data-section").lower())
-                tag.append(self.parser.getAttribute(i,attr="data-organisations").lower())
-                tag.append(self.parser.getAttribute(i,attr="data-master-section").lower())
-                    
-                        #tag.append(self.parser.getAttribute(i,attr="data-locations").lower()) For future use
+                tag.append(self.parser.getAttribute(
+                    i, attr="data-tags").lower())
+                tag.append(self.parser.getAttribute(
+                    i, attr="data-story").lower())
+                tag.append(self.parser.getAttribute(
+                    i, attr="data-section").lower())
+                tag.append(self.parser.getAttribute(
+                    i, attr="data-organisations").lower())
+                tag.append(self.parser.getAttribute(
+                    i, attr="data-master-section").lower())
+
+                # tag.append(self.parser.getAttribute(i,attr="data-locations").lower()) For future use
         except:
             pass
-        tag=list(filter(None,tag))
-        filtered_tags=self.filter_dupl(tag)
-        new_list=[]
+        tag = list(filter(None, tag))
+        filtered_tags = self.filter_dupl(tag)
+        new_list = []
         for i in filtered_tags:
-            temp=i.split("/")
+            temp = i.split("/")
             for c in temp:
                 new_list.append(c)
         return new_list
 
-       
         #     #TODO some websites have og category where they have the Segmentering. VK
-
-        
-        
-        
-        
-            
 
         if len(list(doc)) == 0:
             return NO_STRINGS
@@ -1245,7 +1248,7 @@ class ContentExtractor(object):
         """Adds any siblings that may have a decent score to this node
         """
         if current_sibling.tag == 'p' and \
-                        len(self.parser.getText(current_sibling)) > 0:
+                len(self.parser.getText(current_sibling)) > 0:
             e0 = current_sibling
             if e0.tail:
                 e0 = copy.deepcopy(e0)
